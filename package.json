@@ -1,0 +1,16 @@
+{
+  "name": "browser-agent",
+  "version": "1.0.0",
+  "description": "Browser automation agent",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js"
+  },
+  "dependencies": {
+    "playwright": "latest",
+    "@anthropic-ai/sdk": "latest",
+    "express": "latest",
+    "ws": "latest",
+    "dotenv": "latest"
+  }
+}
