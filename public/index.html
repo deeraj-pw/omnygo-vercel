@@ -1229,9 +1229,14 @@
         modal.style.display = 'none';
       } else {
         modal.style.display = 'flex';
-        const name = document.getElementById('settingsProviderName');
-        if (name && window.currentProvider) {
-          name.textContent = window.currentProvider === 'openai' ? 'GPT-4o' : 'Claude';
+        // Update provider display
+        const nameEl = document.getElementById('settingsProviderName');
+        if (nameEl) {
+          if (window.currentProvider === 'openai') {
+            nameEl.textContent = 'GPT-4o';
+          } else {
+            nameEl.textContent = 'Claude';
+          }
         }
       }
     }
@@ -1324,7 +1329,12 @@
       // ===== MESSAGE HANDLING =====
       function handleMessage(data) {
         if (data.type === 'provider') {
-          currentProvider = data.name;
+          window.currentProvider = data.name;
+          // Update immediately if modal is already open
+          const nameEl = document.getElementById('settingsProviderName');
+          if (nameEl) {
+            nameEl.textContent = data.name === 'openai' ? 'GPT-4o' : 'Claude';
+          }
         } else if (data.type === 'action') {
           addStep(data.action);
         } else if (data.type === 'screencast_frame') {
