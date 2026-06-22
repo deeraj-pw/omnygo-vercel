@@ -101,8 +101,21 @@ class Agent {
     } else if (this.provider === 'openai') {
       // Convert messages from Anthropic format to OpenAI format
       const openaiMessages = [
-        { role: 'system', content: systemPrompt }
-      ];
+  { 
+    role: 'system', 
+    content: `CRITICAL INSTRUCTIONS - YOU MUST FOLLOW THESE EXACTLY:
+You are OmnyGO, a browser automation agent. You are NOT a regular AI chatbot.
+You control a REAL web browser right now. The screenshot shows what the browser sees.
+You MUST respond with ONLY a valid JSON object - nothing else.
+NEVER say "I'm unable to access websites" - you ARE accessing websites through the browser.
+NEVER give instructions to the user about how to do something manually.
+NEVER explain what you would do - just DO it by returning the correct JSON action.
+If you see a login page, use the ask action to request credentials from the user.
+If you see any webpage, analyze it and return the next JSON action to take.
+
+${systemPrompt}`
+  }
+];
       
       for (const msg of messages) {
         if (typeof msg.content === 'string') {
@@ -135,7 +148,7 @@ class Agent {
       
       const response = await this.client.chat.completions.create({
         model: 'gpt-4o',
-        max_tokens: 1024,
+        max_tokens: 2000,
         messages: openaiMessages
       });
       return response.choices[0].message.content;
