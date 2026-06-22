@@ -4,18 +4,22 @@ class BrowserController {
   constructor() {
     this.browser = null;
     this.page = null;
+    this.cdpSession = null;
   }
 
-  async launch() {
-    try {
-      console.log('Launching Chromium browser...');
-      this.browser = await chromium.launch({ headless: false });
-      this.page = await this.browser.newPage();
-      console.log('Browser launched successfully');
-    } catch (error) {
-      throw new Error(`Failed to launch browser: ${error.message}`);
-    }
-  }
+   async launch() {
+     try {
+       console.log('Launching Chromium browser...');
+       this.browser = await chromium.launch({ 
+         headless: true,
+         args: ['--window-size=1280,800']
+       });
+       this.page = await this.browser.newPage();
+       console.log('Browser launched successfully');
+     } catch (error) {
+       throw new Error(`Failed to launch browser: ${error.message}`);
+     }
+   }
 
   async screenshot() {
     try {
@@ -189,15 +193,63 @@ class BrowserController {
     }
   }
 
+  async startScreencast(onFrame) {
+    try {
+      if (!this.page) return;
+      console.log('Starting browser screencast...');
+      
+      const cdp = await this.page.context().newCDPSession(this.page);
+      this.cdpSession = cdp;
+      
+      cdp.on('Page.screencastFrame', async (event) => {
+        try {
+          // Acknowledge the frame so CDP keeps sending
+          await cdp.send('Page.screencastFrameAck', { sessionId: event.sessionId });
+          // Send the frame to callback
+          if (onFrame) {
+            onFrame(event.data, event.metadata);
+          }
+        } catch(e) {}
+      });
+      
+      await cdp.send('Page.startScreencast', {
+        format: 'jpeg',
+        quality: 60,
+        maxWidth: 1280,
+        maxHeight: 800,
+        everyNthFrame: 2
+      });
+      
+      console.log('Screencast started');
+    } catch (error) {
+      console.error('Failed to start screencast:', error);
+    }
+  }
+
+  async stopScreencast() {
+    try {
+      if (this.cdpSession) {
+        await this.cdpSession.send('Page.stopScreencast');
+        await this.cdpSession.detach();
+        this.cdpSession = null;
+        console.log('Screencast stopped');
+      }
+    } catch (error) {
+      console.error('Failed to stop screencast:', error);
+    }
+  }
+
   async close() {
     try {
       if (!this.browser) {
         throw new Error('Browser not launched.');
       }
+      await this.stopScreencast();
       console.log('Closing browser...');
       await this.browser.close();
       this.browser = null;
       this.page = null;
+      this.cdpSession = null;
       console.log('Browser closed successfully');
     } catch (error) {
       throw new Error(`Failed to close browser: ${error.message}`);

@@ -7,10 +7,11 @@
     "start": "node src/server.js"
   },
   "dependencies": {
-    "playwright": "latest",
     "@anthropic-ai/sdk": "latest",
+    "dotenv": "latest",
     "express": "latest",
-    "ws": "latest",
-    "dotenv": "latest"
+    "openai": "^6.44.0",
+    "playwright": "latest",
+    "ws": "latest"
   }
 }
