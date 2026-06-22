@@ -545,7 +545,7 @@ If the task is the same, respond with ONLY: SAME`;
       const action = JSON.parse(jsonStr);
       return action;
     } catch (error) {
-      throw new Error(`Failed to parse action from Claude response: ${error.message}\nResponse: ${responseText}`);
+      throw new Error(`Failed to parse action from AI response: ${error.message}\nResponse: ${responseText}`);
     }
   }
 

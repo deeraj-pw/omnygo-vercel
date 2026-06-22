@@ -11,9 +11,13 @@ class BrowserController {
      try {
        console.log('Launching Chromium browser...');
        this.browser = await chromium.launch({ 
-         headless: true,
-         args: ['--window-size=1280,800']
-       });
+  headless: true,
+  ignoreHTTPSErrors: true,
+  args: [
+    '--window-size=1280,800',
+    '--ignore-certificate-errors'
+  ]
+});
        this.page = await this.browser.newPage();
        console.log('Browser launched successfully');
      } catch (error) {

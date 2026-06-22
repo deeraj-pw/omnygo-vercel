@@ -984,7 +984,7 @@
             <line x1="8" y1="22" x2="16" y2="22"></line>
           </svg>
         </button>
-        <button class="go-btn" onclick="startTask()">GO</button>
+         <button class="go-btn" onclick="handleGoClick()">GO</button>
       </div>
       <div class="examples-label">Try these:</div>
       <div class="examples-container">
@@ -1020,7 +1020,7 @@
           <div class="section-label">Plan & Activity</div>
         </div>
         <div style="flex: 1; overflow-y: auto; min-height: 0;" id="stepsScroller">
-          <div id="planContainer"></div>
+          <div id="planContainer" style="padding: 0 16px 8px; display:none;"><div style="font-size: 10px; font-weight: 600; letter-spacing: 1.5px; color: #b0b0ac; text-transform: uppercase; margin-bottom: 10px;">Plan</div><div id="planSteps"></div></div>
           <div style="font-size: 10px; font-weight: 600; letter-spacing: 1.5px; 
             color: #b0b0ac; text-transform: uppercase; margin: 8px 0 14px; padding: 0 16px;">
             Activity
@@ -1128,6 +1128,78 @@
     let activePlan = [];
     let taskStopped = false;
     let errorShown = false;
+    let activeGoal = '';
+    let currentTaskText = '';
+
+    // ===== GLOBAL HANDLER =====
+    function handleGoClick() {
+      const input = document.getElementById('goalInput');
+      if (!input) return;
+      const goal = input.value.trim();
+      if (!goal) return;
+      
+      // Switch to watching view
+      const homeView = document.getElementById('homeView');
+      const watchingView = document.getElementById('watchingView');
+      if (homeView) homeView.style.display = 'none';
+      if (watchingView) watchingView.style.display = 'flex';
+      
+      // Reset state
+      taskStopped = false;
+      errorShown = false;
+      activePlan = [];
+      activeSteps = [];
+      activeGoal = goal;
+      stepCount = 0;
+      
+      // Reset UI elements
+      const taskText = document.getElementById('watchingTaskGoal');
+      if (taskText) taskText.textContent = goal;
+      
+      const stepsContainer = document.getElementById('stepsContainer');
+      if (stepsContainer) stepsContainer.innerHTML = '';
+      
+      const planContainer = document.getElementById('planContainer');
+      if (planContainer) { 
+        planContainer.style.display = 'block';
+        const planSteps = document.getElementById('planSteps');
+        if (planSteps) planSteps.innerHTML = '';
+      }
+      
+      const liveImg = document.getElementById('liveScreenshot');
+      if (liveImg) { liveImg.style.display = 'none'; liveImg.src = ''; }
+      
+      const livePlaceholder = document.getElementById('livePlaceholder');
+      if (livePlaceholder) {
+        livePlaceholder.style.display = 'block';
+        livePlaceholder.textContent = 'Starting up...';
+      }
+      
+      const liveUrl = document.getElementById('liveUrl');
+      if (liveUrl) liveUrl.textContent = 'Starting...';
+      
+      const fakeBrowserUrl = document.getElementById('fakeBrowserUrl');
+      if (fakeBrowserUrl) fakeBrowserUrl.textContent = 'about:blank';
+      
+      // Show running bar, hide completed bar
+      const runningBar = document.getElementById('runningBar');
+      const completedBar = document.getElementById('completedBar');
+      if (runningBar) runningBar.style.display = 'block';
+      if (completedBar) completedBar.style.display = 'none';
+      
+      const workingStatus = document.getElementById('workingStatus');
+      if (workingStatus) workingStatus.textContent = 'Starting...';
+      
+      // Send to agent
+      setTimeout(() => {
+        if (ws && ws.readyState === WebSocket.OPEN) {
+          ws.send(JSON.stringify({ type: 'run', goal: goal }));
+          console.log('Sent run:', goal);
+        } else {
+          alert('Not connected. Please refresh the page.');
+        }
+      }, 100);
+    }
 
     // ===== INITIALIZATION =====
     function init() {
@@ -1341,25 +1413,20 @@
           updateScreencastFrame(data);
         } else if (data.type === 'ask') {
           showReplySection(data.question);
-      } else if (data.type === 'done') {
+        } else if (data.type === 'done') {
+          if (taskStopped) return;
+          addDoneStep(data.result);
           markPlanComplete();
           completeTask(data.result, 'complete');
-      } else if (data.type === 'error') {
-           if (taskStopped) {
-             console.log('Ignoring error after stop');
-             return;
-           }
-           if (errorShown) return;   // prevent duplicate error steps
-           errorShown = true;
-           addErrorStep(data.message);
-           completeTask(data.message, 'error');
-         } else if (data.type === 'done') {
-          if (taskStopped) return;
-          markPlanComplete();
-          completeTask(data.result, 'complete');
-        } else if (data.type === 'action') {
-          if (taskStopped) return;
-          addStep(data.action);
+        } else if (data.type === 'error') {
+          if (taskStopped) {
+            console.log('Ignoring error after stop');
+            return;
+          }
+          if (errorShown) return;
+          errorShown = true;
+          addErrorStep(data.message);
+          completeTask(data.message, 'error');
         } else if (data.type === 'stopped') {
           taskStopped = true;
           addStoppedStep();
@@ -1478,6 +1545,8 @@
 
      // ===== STEP RENDERING =====
      function addStep(action) {
+       // Skip rendering 'done' here - verification flow renders it last
+      if (action.action === 'done') return;
        stepCount++;
        const container = document.getElementById('stepsContainer');
        
@@ -1543,7 +1612,34 @@
        const scroller = document.getElementById('stepsScroller');
        if (scroller) scroller.scrollTop = scroller.scrollHeight;
      }
-
+     function addDoneStep(result) {
+  stepCount++;
+  const container = document.getElementById('stepsContainer');
+  
+  document.querySelectorAll('.activity-dot').forEach(dot => {
+    dot.style.background = '#4caf72';
+    dot.style.animation = 'none';
+    dot.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>';
+  });
+  
+  const item = document.createElement('div');
+  item.className = 'step-item';
+  item.innerHTML = `
+    <div class="step-circle activity-dot" style="background-color: #4caf72; border-color: #4caf72; animation: none;">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <div class="step-content">
+      <div class="step-title">All done!</div>
+      <div class="step-subtitle">${result || ''}</div>
+    </div>
+  `;
+  container.appendChild(item);
+  
+  activeSteps.push({ title: 'All done!', subtitle: result || '' });
+  
+  const scroller = document.getElementById('stepsScroller');
+  if (scroller) scroller.scrollTop = scroller.scrollHeight;
+}
      function addErrorStep(errorMessage) {
        stepCount++;
        const container = document.getElementById('stepsContainer');
@@ -1622,7 +1718,7 @@
              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" 
                stroke-width="2.5"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
            </div>
-           <div style="width:1.5px;flex:1;background:#e8e8e6;margin:4px 0;min-height:14px;"></div>
+           <div style="width:1.5px;flex:1;background:#e8e8e6;margin:4px 0;min-height:14px;opacity:0;"></div>
          </div>
          <div style="padding-top:2px;">
            <div style="font-size:13px;color:#1a1a1a;font-weight:500;">Checking my work</div>
@@ -1729,7 +1825,7 @@
         dot.style.animation = 'none';
       });
 
-      const goal = document.getElementById('watchingTaskGoal').textContent;
+      const goal = activeGoal || document.getElementById('currentTaskText')?.textContent || document.getElementById('watchingTaskGoal')?.textContent || '';
       const taskStatus = status === 'complete' ? 'passed' : 'failed';
       addToHistory(goal, taskStatus, [...activeSteps], currentRunResult, [...activePlan]);
     }
@@ -1765,6 +1861,11 @@
       if (watchingView) watchingView.style.display = 'none';
       
       // Refresh history list
+      const taskText = document.getElementById('currentTaskText');
+if (taskText) taskText.textContent = '';
+
+const watchingTaskGoal = document.getElementById('watchingTaskGoal');
+if (watchingTaskGoal) watchingTaskGoal.textContent = '';
       renderTaskHistory();
     }
 
@@ -1896,7 +1997,7 @@
 
     document.getElementById('goalInput').addEventListener('keypress', function(e) {
       if (e.key === 'Enter') {
-        startTask();
+        handleGoClick();
       }
     });
 
@@ -1925,32 +2026,38 @@
       const taskText = document.getElementById('watchingTaskGoal');
       if (taskText) taskText.textContent = task.goal;
       
-      // Render plan from saved data
+      // Render plan from saved history
       const planContainer = document.getElementById('planContainer');
       const planSteps = document.getElementById('planSteps');
       
       if (task.plan && task.plan.length > 0) {
-        // Show the plan box, render all steps as completed green
         if (planContainer) planContainer.style.display = 'block';
         if (planSteps) {
           planSteps.innerHTML = '';
           task.plan.forEach((step) => {
-            const stepText = typeof step === 'string' ? step : String(step);
+            const stepText = typeof step === 'string' ? step : 
+              (step.step || step.title || step.description || String(step));
+            if (!stepText || stepText === 'undefined') return;
             const div = document.createElement('div');
+            div.className = 'plan-step';
             div.style.cssText = 'display:flex;align-items:center;gap:10px;padding:6px 0;';
             div.innerHTML = `
               <div style="width:18px;height:18px;border-radius:50%;background:#4caf72;
-                display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                display:flex;align-items:center;justify-content:center;flex-shrink:0;
+                min-width:18px;">
                 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" 
-                  stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                  stroke="white" stroke-width="3">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
               </div>
-              <span style="font-size:13px;color:#4caf72;font-weight:500;">${stepText}</span>
+              <span style="font-size:13px;color:#4caf72;font-weight:500;
+                line-height:1.4;">${stepText}</span>
             `;
             planSteps.appendChild(div);
           });
         }
       } else {
-        // No plan saved (older tasks or trivial tasks) - hide the plan box
+        // No plan saved - hide the plan container entirely
         if (planContainer) planContainer.style.display = 'none';
       }
       
