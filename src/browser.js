@@ -322,18 +322,16 @@ class BrowserController {
       
       // Navigate to ERP
       await this.page.goto(process.env.ERP_URL, { 
-        waitUntil: 'networkidle',
+        waitUntil: 'domcontentloaded',
         timeout: 30000 
       });
       await this.page.waitForTimeout(2000);
 
-      // Select database using JavaScript (handles custom dropdowns)
-      const dbName = process.env.ERP_DB;
-      // Click the dropdown to open it
-      await this.page.click('.log-on-to');
+      // Step 1: Click dropdown to open it
+      await this.page.click('#dropdownToggle > div > span.selected-text-box');
       await this.page.waitForTimeout(1000);
-
-      // Click the specific database option
+      
+      // Step 2: Select the database by text
       const dbSelected = await this.page.evaluate((dbName) => {
         const allDivs = document.querySelectorAll('div');
         for (const div of allDivs) {
@@ -343,72 +341,27 @@ class BrowserController {
           }
         }
         return false;
-      }, dbName);
+      }, process.env.ERP_DB);
       
       console.log('DB selected:', dbSelected);
       await this.page.waitForTimeout(1000);
 
-      // Enter username
-      const usernameSelectors = [
-        'input[name="username"]',
-        'input[name="user"]', 
-        'input[type="text"]',
-        'input[placeholder*="user" i]',
-        'input[placeholder*="name" i]',
-        '#username',
-        '#user'
-      ];
-      
-      for (const selector of usernameSelectors) {
-        try {
-          await this.page.fill(selector, process.env.ERP_USERNAME, { timeout: 2000 });
-          console.log('Username entered with selector:', selector);
-          break;
-        } catch(e) { continue; }
-      }
-      
+      // Step 3: Enter username
+      await this.page.fill('#Username', process.env.ERP_USERNAME);
+      console.log('Username entered');
       await this.page.waitForTimeout(500);
 
-      // Enter password
-      const passwordSelectors = [
-        'input[type="password"]',
-        'input[name="password"]',
-        'input[placeholder*="pass" i]',
-        '#password'
-      ];
-      
-      for (const selector of passwordSelectors) {
-        try {
-          await this.page.fill(selector, process.env.ERP_PASSWORD, { timeout: 2000 });
-          console.log('Password entered with selector:', selector);
-          break;
-        } catch(e) { continue; }
-      }
-      
+      // Step 4: Enter password
+      await this.page.fill('#Password', process.env.ERP_PASSWORD);
+      console.log('Password entered');
       await this.page.waitForTimeout(500);
 
-      // Click login button
-      const loginSelectors = [
-        'button[type="submit"]',
-        'input[type="submit"]',
-        'button:has-text("Login")',
-        'button:has-text("Sign in")',
-        'button:has-text("Log in")',
-        '.login-btn',
-        '#login-btn',
-        '#loginBtn'
-      ];
-      
-      for (const selector of loginSelectors) {
-        try {
-          await this.page.click(selector, { timeout: 2000 });
-          console.log('Login button clicked with selector:', selector);
-          break;
-        } catch(e) { continue; }
-      }
+      // Step 5: Click login button
+      await this.page.click('#LoginButton');
+      console.log('Login button clicked');
       
       // Wait for navigation after login
-      await this.page.waitForTimeout(3000);
+      await this.page.waitForTimeout(4000);
       
       const loggedIn = await this.isLoggedIn();
       if (loggedIn) {
