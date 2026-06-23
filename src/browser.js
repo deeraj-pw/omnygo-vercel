@@ -1,4 +1,8 @@
 const { chromium } = require('playwright');
+const fs = require('fs');
+const path = require('path');
+
+const SESSION_PATH = path.join(__dirname, '..', 'sessions', 'erp-session.json');
 
 class BrowserController {
   constructor() {
@@ -257,6 +261,179 @@ class BrowserController {
       console.log('Browser closed successfully');
     } catch (error) {
       throw new Error(`Failed to close browser: ${error.message}`);
+    }
+  }
+
+  async saveSession() {
+    try {
+      const cookies = await this.page.context().cookies();
+      const storage = await this.page.evaluate(() => ({
+        localStorage: Object.fromEntries(
+          Object.keys(localStorage).map(k => [k, localStorage.getItem(k)])
+        ),
+        sessionStorage: Object.fromEntries(
+          Object.keys(sessionStorage).map(k => [k, sessionStorage.getItem(k)])
+        )
+      }));
+      const sessionData = { cookies, storage, savedAt: Date.now() };
+      fs.mkdirSync(path.dirname(SESSION_PATH), { recursive: true });
+      fs.writeFileSync(SESSION_PATH, JSON.stringify(sessionData));
+      console.log('Session saved successfully');
+    } catch(e) {
+      console.error('Failed to save session:', e.message);
+    }
+  }
+
+  async loadSession() {
+    try {
+      if (!fs.existsSync(SESSION_PATH)) return false;
+      const sessionData = JSON.parse(fs.readFileSync(SESSION_PATH, 'utf8'));
+      
+      // Check if session is less than 8 hours old
+      if (Date.now() - sessionData.savedAt > 8 * 60 * 60 * 1000) {
+        console.log('Session expired, need fresh login');
+        fs.unlinkSync(SESSION_PATH);
+        return false;
+      }
+      
+      await this.page.context().addCookies(sessionData.cookies);
+      console.log('Session loaded successfully');
+      return true;
+    } catch(e) {
+      console.error('Failed to load session:', e.message);
+      return false;
+    }
+  }
+
+  async isLoggedIn() {
+    try {
+      const url = this.page.url();
+      // If not on login page, we're logged in
+      return !url.includes('login') && !url.includes('Login') && 
+             !url.includes('signin') && url !== process.env.ERP_URL;
+    } catch(e) {
+      return false;
+    }
+  }
+
+  async loginToERP() {
+    try {
+      console.log('Attempting ERP login...');
+      
+      // Navigate to ERP
+      await this.page.goto(process.env.ERP_URL, { 
+        waitUntil: 'networkidle',
+        timeout: 30000 
+      });
+      await this.page.waitForTimeout(2000);
+
+      // Select database using JavaScript (handles custom dropdowns)
+      const dbName = process.env.ERP_DB;
+      const dbSelected = await this.page.evaluate((dbName) => {
+        // Try multiple approaches to find and select the database
+        
+        // Approach 1: Find select element
+        const selects = document.querySelectorAll('select');
+        for (const select of selects) {
+          for (const option of select.options) {
+            if (option.text.includes(dbName) || option.value.includes(dbName)) {
+              select.value = option.value;
+              select.dispatchEvent(new Event('change', { bubbles: true }));
+              return true;
+            }
+          }
+        }
+        
+        // Approach 2: Find custom dropdown items
+        const allElements = document.querySelectorAll('li, div, span, a');
+        for (const el of allElements) {
+          if (el.textContent.trim() === dbName || el.textContent.includes(dbName)) {
+            el.click();
+            return true;
+          }
+        }
+        
+        return false;
+      }, dbName);
+      
+      console.log('DB selected:', dbSelected);
+      await this.page.waitForTimeout(1000);
+
+      // Enter username
+      const usernameSelectors = [
+        'input[name="username"]',
+        'input[name="user"]', 
+        'input[type="text"]',
+        'input[placeholder*="user" i]',
+        'input[placeholder*="name" i]',
+        '#username',
+        '#user'
+      ];
+      
+      for (const selector of usernameSelectors) {
+        try {
+          await this.page.fill(selector, process.env.ERP_USERNAME, { timeout: 2000 });
+          console.log('Username entered with selector:', selector);
+          break;
+        } catch(e) { continue; }
+      }
+      
+      await this.page.waitForTimeout(500);
+
+      // Enter password
+      const passwordSelectors = [
+        'input[type="password"]',
+        'input[name="password"]',
+        'input[placeholder*="pass" i]',
+        '#password'
+      ];
+      
+      for (const selector of passwordSelectors) {
+        try {
+          await this.page.fill(selector, process.env.ERP_PASSWORD, { timeout: 2000 });
+          console.log('Password entered with selector:', selector);
+          break;
+        } catch(e) { continue; }
+      }
+      
+      await this.page.waitForTimeout(500);
+
+      // Click login button
+      const loginSelectors = [
+        'button[type="submit"]',
+        'input[type="submit"]',
+        'button:has-text("Login")',
+        'button:has-text("Sign in")',
+        'button:has-text("Log in")',
+        '.login-btn',
+        '#login-btn',
+        '#loginBtn'
+      ];
+      
+      for (const selector of loginSelectors) {
+        try {
+          await this.page.click(selector, { timeout: 2000 });
+          console.log('Login button clicked with selector:', selector);
+          break;
+        } catch(e) { continue; }
+      }
+      
+      // Wait for navigation after login
+      await this.page.waitForTimeout(3000);
+      
+      const loggedIn = await this.isLoggedIn();
+      if (loggedIn) {
+        await this.saveSession();
+        console.log('ERP login successful');
+        return true;
+      }
+      
+      console.log('Login may have failed, current URL:', this.page.url());
+      return false;
+      
+    } catch(e) {
+      console.error('ERP login failed:', e.message);
+      return false;
     }
   }
 }

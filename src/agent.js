@@ -160,19 +160,68 @@ ${systemPrompt}`
        // Reset conversation history for new task
        this.conversationHistory = [];
 
-        // Launch browser
-        await this.browser.launch();
-        this.onStep({ type: 'info', message: 'Browser launched' });
-        
-        // Signal UI to focus test browser after launch
-        this.onStep({ type: 'focus_browser' });
+         // Launch browser
+         await this.browser.launch();
+         this.onStep({ type: 'info', message: 'Browser launched' });
+         
+         // Signal UI to focus test browser after launch
+         this.onStep({ type: 'focus_browser' });
 
-        // Take initial screenshot
+         // Check if this is an ERP task
+         const erpUrl = process.env.ERP_URL || '';
+         const isERPTask = erpUrl && (
+           userGoal.toLowerCase().includes('erp') ||
+           userGoal.includes(erpUrl) ||
+           userGoal.includes('bistrk') ||
+           userGoal.includes('epicor') ||
+           userGoal.includes('bistrack')
+         );
 
-       const screenshot = await this.browser.screenshot();
-       this.onStep({ type: 'info', message: 'Initial screenshot taken' });
+         if (isERPTask) {
+           this.onStep({ type: 'info', message: 'Preparing ERP session...' });
+           
+           // Try to load existing session first
+           const sessionLoaded = await this.browser.loadSession();
+           
+           if (sessionLoaded) {
+             // Navigate to ERP and check if still logged in
+             await this.browser.page.goto(erpUrl, { 
+               waitUntil: 'domcontentloaded', 
+               timeout: 15000 
+             });
+             await this.browser.page.waitForTimeout(1000);
+             const stillLoggedIn = await this.browser.isLoggedIn();
+             
+             if (stillLoggedIn) {
+               this.onStep({ type: 'info', message: 'Using existing ERP session' });
+             } else {
+               // Session expired, login again
+               this.onStep({ type: 'info', message: 'Session expired, logging in...' });
+               await this.browser.loginToERP();
+             }
+           } else {
+             // No session, fresh login
+             this.onStep({ type: 'info', message: 'Logging into ERP...' });
+             const loginSuccess = await this.browser.loginToERP();
+             if (!loginSuccess) {
+               this.onStep({ 
+                 type: 'error', 
+                 message: 'Could not log into ERP automatically. Please check credentials in .env file.' 
+               });
+               await this.browser.close();
+               return;
+             }
+           }
+           
+           this.onStep({ type: 'info', message: 'ERP ready' });
+         }
 
-       // === PLANNING PHASE ===
+         // Take initial screenshot
+
+        const screenshot = await this.browser.screenshot();
+        this.onStep({ type: 'info', message: 'Initial screenshot taken' });
+
+        // === PLANNING PHASE ===
        // Detect if this is a real browser task or just conversation
        const triviaCheck = userGoal.trim().toLowerCase();
        const isTrivial = triviaCheck.length < 15 && 
