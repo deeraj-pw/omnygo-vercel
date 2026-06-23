@@ -307,10 +307,11 @@ class BrowserController {
 
   async isLoggedIn() {
     try {
-      const url = this.page.url();
-      // If not on login page, we're logged in
-      return !url.includes('login') && !url.includes('Login') && 
-             !url.includes('signin') && url !== process.env.ERP_URL;
+      // Check for login form absence instead of URL change
+      const hasLoginButton = await this.page.$('#LoginButton');
+      const hasUsername = await this.page.$('#Username');
+      // If login form is gone, we're logged in
+      return !hasLoginButton && !hasUsername;
     } catch(e) {
       return false;
     }
