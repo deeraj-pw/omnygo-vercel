@@ -329,30 +329,19 @@ class BrowserController {
 
       // Select database using JavaScript (handles custom dropdowns)
       const dbName = process.env.ERP_DB;
+      // Click the dropdown to open it
+      await this.page.click('.log-on-to');
+      await this.page.waitForTimeout(1000);
+
+      // Click the specific database option
       const dbSelected = await this.page.evaluate((dbName) => {
-        // Try multiple approaches to find and select the database
-        
-        // Approach 1: Find select element
-        const selects = document.querySelectorAll('select');
-        for (const select of selects) {
-          for (const option of select.options) {
-            if (option.text.includes(dbName) || option.value.includes(dbName)) {
-              select.value = option.value;
-              select.dispatchEvent(new Event('change', { bubbles: true }));
-              return true;
-            }
-          }
-        }
-        
-        // Approach 2: Find custom dropdown items
-        const allElements = document.querySelectorAll('li, div, span, a');
-        for (const el of allElements) {
-          if (el.textContent.trim() === dbName || el.textContent.includes(dbName)) {
-            el.click();
+        const allDivs = document.querySelectorAll('div');
+        for (const div of allDivs) {
+          if (div.textContent.trim() === dbName) {
+            div.click();
             return true;
           }
         }
-        
         return false;
       }, dbName);
       
