@@ -9,13 +9,14 @@ class BrowserController {
     this.browser = null;
     this.page = null;
     this.cdpSession = null;
+    this.onScreencastFrame = null;   // <-- add this
   }
 
    async launch() {
      try {
        console.log('Launching Chromium browser...');
        this.browser = await chromium.launch({ 
-  headless: true,
+  headless: false,
   ignoreHTTPSErrors: true,
   args: [
     '--window-size=1280,800',
@@ -23,6 +24,10 @@ class BrowserController {
   ]
 });
        this.page = await this.browser.newPage();
+
+       // Listen for new tabs opening - switch focus to the newest tab
+       this.attachNewTabListener(this.page);
+
        console.log('Browser launched successfully');
      } catch (error) {
        throw new Error(`Failed to launch browser: ${error.message}`);
@@ -201,10 +206,60 @@ class BrowserController {
     }
   }
 
+  attachNewTabListener(page) {
+    page.context().on('page', async (newPage) => {
+      console.log('New tab detected - switching focus to it');
+      try {
+        await newPage.waitForLoadState('domcontentloaded', { timeout: 15000 });
+      } catch(e) {
+        console.log('New tab load wait timed out, switching anyway');
+      }
+      this.page = newPage;
+      try { await this.page.bringToFront(); } catch(e) {}
+      console.log('Switched to new tab:', this.page.url());
+
+      // Handle tab close - fall back to remaining tab
+      newPage.on('close', async () => {
+        console.log('Current tab closed - falling back to another open tab');
+        try {
+          const pages = newPage.context().pages();
+          if (pages.length > 0) {
+            this.page = pages[pages.length - 1];
+            await this.page.bringToFront();
+            console.log('Fell back to tab:', this.page.url());
+            if (this.onScreencastFrame) {
+              try { await this.startScreencast(this.onScreencastFrame); } catch(e) {}
+            }
+          }
+        } catch(e) {
+          console.log('Tab close fallback failed:', e.message);
+        }
+      });
+
+      // Restart screencast on the new tab if it was running
+      if (this.onScreencastFrame) {
+        try {
+          await this.startScreencast(this.onScreencastFrame);
+        } catch(e) {
+          console.log('Could not restart screencast on new tab:', e.message);
+        }
+      }
+    });
+  }
+
   async startScreencast(onFrame) {
     try {
       if (!this.page) return;
       console.log('Starting browser screencast...');
+      
+      // Save callback so we can restart on new tabs
+      this.onScreencastFrame = onFrame;
+      
+      // Clean up existing CDP session before creating a new one
+      if (this.cdpSession) {
+        try { await this.cdpSession.detach(); } catch(e) {}
+        this.cdpSession = null;
+      }
       
       const cdp = await this.page.context().newCDPSession(this.page);
       this.cdpSession = cdp;
