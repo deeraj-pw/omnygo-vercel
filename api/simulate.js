@@ -17,9 +17,12 @@ module.exports = async (req, res) => {
 
   try {
     const { goal, planStep, userApiKey } = req.body;
-    const apiKey = userApiKey || process.env.ANTHROPIC_API_KEY;
+    const apiKey = (req.body && req.body.userApiKey) || process.env.ANTHROPIC_API_KEY;
+     console.log('API key present:', !!apiKey, 'from:', req.body?.userApiKey ? 'user' : 'env');
     if (!apiKey) {
-      res.status(500).json({ error: 'No API key configured' });
+      res.status(400).json({ 
+       error: 'No API key available. Please add your Anthropic API key in Settings.' 
+     });
       return;
     }
     

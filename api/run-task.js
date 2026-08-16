@@ -19,7 +19,8 @@ module.exports = async (req, res) => {
 
   try {
     const { action, sessionId, goal, userApiKey, connectUrl, conversationHistory, plan, currentStep } = req.body;
-    const apiKey = userApiKey || process.env.ANTHROPIC_API_KEY;
+    const apiKey = (req.body && req.body.userApiKey) || process.env.ANTHROPIC_API_KEY;
+     console.log('API key present:', !!apiKey, 'from:', req.body?.userApiKey ? 'user' : 'env');
     
     const bb = new Browserbase({ apiKey: process.env.BROWSERBASE_API_KEY });
 
@@ -64,7 +65,15 @@ module.exports = async (req, res) => {
       const base64 = screenshotBuffer.toString('base64');
       
       // Ask AI for next action
-      const client = new Anthropic({ apiKey });
+       
+       if (!apiKey) {
+         res.status(400).json({ 
+           error: 'No API key available. Please add your Anthropic API key in Settings.' 
+         });
+         return;
+       }
+       
+       const client = new Anthropic({ apiKey });
       const systemPrompt = `You are OmnyGO, a QA testing browser agent. Look at the screenshot and decide the next action.
 Respond with ONLY a JSON object:
 { "action": "navigate", "url": "https://...", "description": "..." }
