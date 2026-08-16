@@ -27,6 +27,9 @@ module.exports = async (req, res) => {
     if (action === 'create') {
       const session = await bb.sessions.create({
         projectId: process.env.BROWSERBASE_PROJECT_ID,
+        browserSettings: {
+          viewport: { width: 1280, height: 800 }
+        }
       });
       
       // Get the live view URL for embedding
@@ -45,6 +48,16 @@ module.exports = async (req, res) => {
       const browser = await chromium.connectOverCDP(connectUrl);
       const context = browser.contexts()[0];
       const page = context.pages()[0] || await context.newPage();
+      
+      // Ensure viewport is set to avoid 0 width screenshot error
+      try {
+        await page.setViewportSize({ width: 1280, height: 800 });
+      } catch(e) {
+        console.log('Viewport set skipped:', e.message);
+      }
+      
+      // Wait a moment for page to be ready
+      await page.waitForTimeout(500);
       
       // Take screenshot
       const screenshotBuffer = await page.screenshot({ type: 'jpeg', quality: 60 });
