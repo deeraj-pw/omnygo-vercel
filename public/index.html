@@ -1223,6 +1223,14 @@
         return;
       }
       
+      // Hide the fake browser chrome since iframe has real one
+      const fakeBar = document.querySelector('.browser-chrome');
+      if (fakeBar) fakeBar.style.display = 'none';
+      
+      // Also hide the fake url element's container
+      const fakeUrl = document.getElementById('fakeBrowserUrl');
+      if (fakeUrl && fakeUrl.parentElement) fakeUrl.parentElement.style.display = 'none';
+      
       container.innerHTML = `
         <iframe 
           src="${liveViewUrl}" 
@@ -1387,6 +1395,10 @@
           <div class="screenshot-placeholder" style="display: block;">Starting up...</div>
         `;
       }
+      
+      // Show the fake browser chrome bar again (was hidden by showLiveView)
+      const fakeBar = document.querySelector('.browser-chrome');
+      if (fakeBar) fakeBar.style.display = '';
       
       const liveUrl = document.getElementById('liveUrl');
       if (liveUrl) liveUrl.textContent = 'Starting...';
