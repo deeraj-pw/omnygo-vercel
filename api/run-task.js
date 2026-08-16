@@ -95,7 +95,9 @@ Current goal: ${goal}`;
         done = true;
       }
 
-      await browser.close();
+      // DO NOT close the browser here - it will terminate the Browserbase session
+      // The connectOverCDP connection will be garbage collected
+      // The Browserbase session stays alive for the next step
 
       res.status(200).json({ 
         agentAction, 
