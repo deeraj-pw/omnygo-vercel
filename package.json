@@ -1,17 +1,9 @@
 {
-  "name": "browser-agent",
+  "name": "omnygo-vercel",
   "version": "1.0.0",
-  "description": "Browser automation agent",
-  "main": "src/server.js",
-  "scripts": {
-    "start": "node src/server.js"
-  },
+  "description": "AI-Powered Autonomous QA Testing Agent",
   "dependencies": {
-    "@anthropic-ai/sdk": "latest",
-    "dotenv": "latest",
-    "express": "latest",
-    "openai": "^6.44.0",
-    "playwright": "latest",
-    "ws": "latest"
+    "@anthropic-ai/sdk": "^0.30.0"
   }
 }
+
