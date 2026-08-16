@@ -12,12 +12,30 @@
       box-sizing: border-box;
     }
 
+    :root {
+      --ink: #16150F;
+      --ink-soft: #5C5A52;
+      --ink-faint: #9C9A92;
+      --ink-ghost: #C4C2BA;
+      --surface: #FBFAF8;
+      --surface-raised: #FFFFFF;
+      --line: #EBE9E3;
+      --line-soft: #F3F1EC;
+      --accent: #FF6A3D;
+      --accent-soft: #FFF1EC;
+      --ok: #3E9E6A;
+      --warn: #D9873F;
+      --stop: #C75450;
+    }
+
     body {
       font-family: 'Inter', system-ui, sans-serif;
       background-color: #fbfbfa;
       color: #1a1a1a;
       height: 100vh;
       overflow: hidden;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
     }
 
     /* ===== SHARED STYLES ===== */
@@ -217,32 +235,43 @@
     }
 
     .new-task-btn {
-      background-color: #fff4f0;
-      color: #ff6a3d;
-      border: none;
+      width: 100%;
+      padding: 10px 14px;
       border-radius: 10px;
-      padding: 10px 12px;
+      border: 1px solid var(--line);
+      background: var(--surface-raised);
+      color: var(--ink);
       font-size: 13px;
-      font-weight: 600;
+      font-weight: 550;
+      letter-spacing: -0.005em;
+      text-align: left;
       cursor: pointer;
+      transition: border-color 0.18s ease, background 0.18s ease;
       display: flex;
       align-items: center;
-      gap: 6px;
-      margin-bottom: 20px;
-      transition: all 0.2s ease;
+      gap: 8px;
+      margin-bottom: 26px;
     }
 
     .new-task-btn:hover {
-      background-color: #ffe8dd;
+      border-color: var(--accent);
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+
+    .new-task-btn span:first-child {
+      color: var(--accent);
+      margin-right: 0px;
+      font-weight: 500;
     }
 
     .recent-label {
       font-size: 10px;
-      letter-spacing: 1.5px;
-      color: #b0b0ac;
+      font-weight: 600;
+      letter-spacing: 0.14em;
       text-transform: uppercase;
-      margin-bottom: 12px;
-      font-weight: 700;
+      color: var(--ink-ghost);
+      margin: 30px 0 12px;
     }
 
     .task-list {
@@ -252,20 +281,22 @@
     }
 
     .task-item {
-      padding: 10px 8px;
-      margin-bottom: 6px;
-      border-radius: 8px;
+      padding: 11px 12px;
+      margin-bottom: 2px;
+      border-radius: 9px;
       cursor: pointer;
-      transition: all 0.2s ease;
       display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 12px;
-      color: #1a1a1a;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 12.5px;
+      color: var(--ink-soft);
+      font-weight: 450;
+      letter-spacing: -0.005em;
+      transition: background 0.16s ease;
     }
 
     .task-item:hover {
-      background-color: #f6f6f4;
+      background: var(--line-soft);
     }
 
     .task-icon {
@@ -320,30 +351,42 @@
     }
 
     .greeting {
-      font-size: 26px;
-      font-weight: 500;
-      color: #1a1a1a;
-      margin-bottom: 8px;
+      font-size: 38px;
+      font-weight: 600;
+      letter-spacing: -0.028em;
+      color: var(--ink);
+      margin-bottom: 14px;
+      line-height: 1.1;
     }
 
     .subtext {
-      font-size: 14px;
-      color: #999;
-      margin-bottom: 32px;
+      font-size: 15px;
+      font-weight: 400;
+      color: var(--ink-faint);
+      letter-spacing: -0.005em;
+      line-height: 1.55;
+      max-width: 480px;
+      margin: 14px auto 0;
     }
 
     .task-input-container {
-      max-width: 480px;
+      max-width: 620px;
       width: 100%;
-      background-color: #ffffff;
-      border: 1.5px solid #ececea;
-      border-radius: 14px;
-      padding: 6px;
+      background: var(--surface-raised);
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      padding: 7px 7px 7px 20px;
       display: flex;
       align-items: center;
       gap: 8px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+      box-shadow: 0 1px 2px rgba(22,21,15,0.03), 0 8px 28px rgba(22,21,15,0.05);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
       margin-bottom: 32px;
+    }
+
+    .task-input-container:focus-within {
+      border-color: var(--accent);
+      box-shadow: 0 1px 2px rgba(22,21,15,0.03), 0 10px 34px rgba(255,106,61,0.10);
     }
 
     #goalInput {
@@ -351,14 +394,15 @@
       border: none;
       background: transparent;
       font-family: 'Inter', system-ui, sans-serif;
-      font-size: 14px;
-      color: #1a1a1a;
+      font-size: 14.5px;
+      color: var(--ink);
+      letter-spacing: -0.005em;
       padding: 10px 12px;
       outline: none;
     }
 
     #goalInput::placeholder {
-      color: #aaa;
+      color: var(--ink-ghost);
     }
 
     .mic-btn {
@@ -413,29 +457,31 @@
     }
 
     .go-btn {
-      background-color: #ff6a3d;
-      color: #ffffff;
-      border: none;
+      padding: 11px 22px;
       border-radius: 10px;
-      padding: 10px 22px;
-      font-weight: 700;
-      font-size: 13px;
+      background: var(--accent);
+      color: #FFFFFF;
+      font-size: 12.5px;
+      font-weight: 650;
+      letter-spacing: 0.02em;
+      border: none;
       cursor: pointer;
-      transition: all 0.2s ease;
+      transition: transform 0.14s ease, box-shadow 0.18s ease;
     }
 
     .go-btn:hover {
-      background-color: #ff5520;
+      box-shadow: 0 4px 14px rgba(255,106,61,0.30);
     }
 
     .go-btn:active {
-      transform: scale(0.98);
+      transform: scale(0.975);
     }
 
     .examples-label {
-      font-size: 12px;
-      color: #999;
-      margin-bottom: 12px;
+      font-size: 11px;
+      color: var(--ink-ghost);
+      letter-spacing: 0.02em;
+      margin-bottom: 14px;
     }
 
     .examples-container {
@@ -446,18 +492,22 @@
     }
 
     .example-chip {
-      background-color: #fff4f0;
-      color: #ff6a3d;
-      border: 1px solid #ffe8dd;
-      border-radius: 20px;
-      padding: 8px 14px;
-      font-size: 12px;
+      padding: 8px 15px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: transparent;
+      font-size: 12.5px;
+      font-weight: 450;
+      color: var(--ink-soft);
+      letter-spacing: -0.005em;
       cursor: pointer;
-      transition: all 0.2s ease;
+      transition: border-color 0.18s ease, color 0.18s ease, background 0.18s ease;
     }
 
     .example-chip:hover {
-      background-color: #ffe8dd;
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-soft);
     }
 
     /* ===== WATCHING VIEW ===== */
@@ -496,11 +546,10 @@
 
     .section-label {
       font-size: 10px;
-      letter-spacing: 1.5px;
-      color: #b0b0ac;
+      font-weight: 600;
+      letter-spacing: 0.14em;
       text-transform: uppercase;
-      margin-bottom: 8px;
-      font-weight: 700;
+      color: var(--ink-ghost);
     }
 
     .task-goal {
@@ -519,7 +568,7 @@
     .step-item {
       display: flex;
       gap: 12px;
-      margin-bottom: 20px;
+      margin-bottom: 18px;
       position: relative;
     }
 
@@ -528,9 +577,10 @@
       position: absolute;
       left: 11px;
       top: 40px;
-      width: 2px;
+      width: 1px;
       height: calc(100% + 8px);
-      background-color: #ececea;
+      background-color: var(--line);
+      margin: 5px 0;
     }
 
     .step-circle {
@@ -543,19 +593,21 @@
       flex-shrink: 0;
       font-size: 12px;
       font-weight: 600;
-      background-color: #f6f6f4;
-      color: #999;
+      background-color: var(--surface-raised);
+      color: var(--ink-ghost);
       position: relative;
       z-index: 1;
+      transition: background 0.3s ease;
+      box-shadow: 0 0 0 3px var(--surface);
     }
 
     .step-circle.completed {
-      background-color: #4caf72;
+      background-color: var(--ok);
       color: #ffffff;
     }
 
     .step-circle.active {
-      background-color: #ff6a3d;
+      background-color: var(--accent);
       color: #ffffff;
       animation: pulse 1.5s infinite;
     }
@@ -567,33 +619,36 @@
 
      #planContainer {
        margin-bottom: 20px;
-       padding: 14px 16px;
-       background: #faf9f8;
-       border-radius: 12px;
-       border: 1px solid #f0f0ee;
+       padding: 15px 16px;
+       background: var(--surface);
+       border-radius: 13px;
+       border: 1px solid var(--line-soft);
      }
 
      .plan-step {
        display: flex;
-       align-items: center;
-       gap: 10px;
-       padding: 6px 0;
-       font-size: 13px;
-       color: #b0b0ac;
+       align-items: flex-start;
+       gap: 11px;
+       padding: 7px 0;
+       font-size: 12.5px;
+       color: var(--ink-soft);
+       line-height: 1.45;
+       letter-spacing: -0.005em;
      }
 
      .plan-dot {
        width: 18px;
        height: 18px;
        border-radius: 50%;
-       border: 1.5px solid #ddd;
+       border: 1.5px solid var(--line);
        display: flex;
        align-items: center;
        justify-content: center;
        flex-shrink: 0;
        font-size: 10px;
-       color: #ddd;
-       transition: all 0.3s;
+       color: var(--ink-ghost);
+       background: var(--surface-raised);
+       transition: background 0.25s ease, border-color 0.25s ease;
      }
 
      .plan-num {
@@ -611,14 +666,19 @@
 
     .step-title {
       font-size: 13px;
-      font-weight: 500;
-      color: #1a1a1a;
+      font-weight: 550;
+      color: var(--ink);
+      letter-spacing: -0.008em;
+      line-height: 1.4;
       margin-bottom: 2px;
     }
 
     .step-subtitle {
       font-size: 11px;
-      color: #999;
+      color: var(--ink-ghost);
+      line-height: 1.45;
+      letter-spacing: 0;
+      margin-top: 3px;
     }
 
     .working-status {
@@ -817,11 +877,21 @@
       display: flex;
       align-items: center;
       gap: 6px;
-      font-size: 11px;
-      letter-spacing: 1px;
-      color: #4caf72;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      color: var(--ok);
       text-transform: uppercase;
-      font-weight: 700;
+    }
+
+    .live-title::before {
+      content: '';
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--ok);
+      animation: pulse 2s ease-in-out infinite;
     }
 
     .live-url {
@@ -844,34 +914,36 @@
     }
 
     .browser-chrome {
-      background-color: #f6f6f4;
-      padding: 8px 12px;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--line-soft);
+      background: var(--surface);
       display: flex;
       align-items: center;
       gap: 8px;
-      border-bottom: 1px solid #ececea;
     }
 
     .chrome-dots {
       display: flex;
-      gap: 4px;
+      gap: 6px;
     }
 
     .chrome-dot {
-      width: 6px;
-      height: 6px;
+      width: 7px;
+      height: 7px;
       border-radius: 50%;
-      background-color: #ccc;
+      background-color: var(--ink-ghost);
+      opacity: 0.5;
     }
 
     .chrome-url {
       flex: 1;
-      background-color: #ffffff;
-      border: 1px solid #ececea;
-      border-radius: 6px;
-      padding: 4px 8px;
-      font-size: 10px;
-      color: #999;
+      background-color: var(--surface-raised);
+      border: 1px solid var(--line-soft);
+      border-radius: 7px;
+      padding: 6px 12px;
+      font-size: 11.5px;
+      color: var(--ink-faint);
+      letter-spacing: 0;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -914,6 +986,20 @@
 
     ::-webkit-scrollbar-thumb:hover {
       background: #999;
+    }
+
+    :focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+      border-radius: 6px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
     }
   </style>
 </head>
@@ -982,7 +1068,7 @@
       <div class="home-sidebar-wordmark wordmark" onclick="goHome()">
         Omny<span class="wordmark-go">GO</span>
       </div>
-      <div style="font-size: 11px; color: #b0b0ac; text-align: center; margin-bottom: 20px; font-weight: 500;">AI-Powered Autonomous QA Testing Agent</div>
+      <div style="font-size: 10.5px; color: var(--ink-ghost); letter-spacing: 0.01em; line-height: 1.45; margin-top: 7px; text-align: left; max-width: 160px;">AI-Powered Autonomous QA Testing Agent</div>
       <button class="new-task-btn" onclick="newTask()">
         <span>+</span> New task
       </button>
@@ -1028,16 +1114,16 @@
       <div class="examples-label">Try these:</div>
       <div class="examples-container">
         <div class="example-chip" onclick="fillExample('Test login on demo.opencart.com with valid credentials')">
-          🔐 Test login
+          Test login
         </div>
         <div class="example-chip" onclick="fillExample('Verify search returns results on wikipedia.org')">
-          🔍 Verify search
+          Verify search
         </div>
         <div class="example-chip" onclick="fillExample('Check that checkout flow works on demo shopping site')">
-          🛒 Test checkout
+          Test checkout
         </div>
         <div class="example-chip" onclick="fillExample('Verify all links in navigation menu are working')">
-          🔗 Check links
+          Check links
         </div>
       </div>
     </div>
@@ -1062,7 +1148,7 @@
           <div class="section-label">Plan & Activity</div>
         </div>
         <div style="flex: 1; overflow-y: auto; min-height: 0;" id="stepsScroller">
-          <div id="planContainer" style="padding: 0 16px 8px; display:none;"><div style="font-size: 10px; font-weight: 600; letter-spacing: 1.5px; color: #b0b0ac; text-transform: uppercase; margin-bottom: 10px;">Plan</div><div id="planSteps"></div></div>
+          <div id="planContainer" style="padding: 0 16px 8px; display:none;"><div style="font-size: 10px; font-weight: 600; letter-spacing: 0.14em; color: var(--ink-ghost); text-transform: uppercase; margin-bottom: 10px;">Plan</div><div id="planSteps"></div></div>
           <div style="font-size: 10px; font-weight: 600; letter-spacing: 1.5px; 
             color: #b0b0ac; text-transform: uppercase; margin: 8px 0 14px; padding: 0 16px;">
             Activity
@@ -1092,39 +1178,41 @@
         </div>
       </div>
 
-      <div id="runningBar" style="padding: 14px 18px; border-top: 1px solid #f0f0ee;">
-        <div style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; 
-          border-radius: 10px; background: #f6f6f4; margin-bottom: 8px;">
-          <div id="statusDot" style="width: 6px; height: 6px; border-radius: 50%; background: #ff6a3d;"></div>
-          <span id="workingStatus" style="font-size: 12px; color: #888;">Working... step 0</span>
+      <div id="runningBar" style="padding: 14px 18px; border-top: 1px solid var(--line);">
+        <div style="display: flex; align-items: center; gap: 8px; padding: 9px 13px; 
+          border-radius: 9px; background: var(--line-soft); margin-bottom: 8px;">
+          <div id="statusDot" style="width: 6px; height: 6px; border-radius: 50%; background: var(--accent);"></div>
+          <span id="workingStatus" style="font-size: 12px; color: var(--ink-soft); letter-spacing: -0.003em;">Working... step 0</span>
         </div>
         <button onclick="stopTask()" style="
           width: 100%; padding: 10px; border-radius: 10px;
-          border: 1px solid #fca89a; background: #fff4f0;
-          font-size: 13px; font-weight: 500; color: #ff6a3d;
+          border: 1px solid #F5C4B6; background: var(--accent-soft);
+          font-size: 12.5px; font-weight: 500; color: var(--accent);
           cursor: pointer; font-family: inherit;
         ">Stop</button>
       </div>
 
-      <div id="completedBar" style="display: none; padding: 14px 18px; border-top: 1px solid #f0f0ee;">
-        <div style="display: flex; align-items: center; gap: 8px; padding: 8px 12px; 
-          border-radius: 10px; background: #f6f6f4; margin-bottom: 8px;">
-          <div id="finalStatusDot" style="width: 6px; height: 6px; border-radius: 50%; background: #4caf72;"></div>
-          <span id="finalStatus" style="font-size: 12px; color: #888;">✓ Task complete</span>
+      <div id="completedBar" style="display: none; padding: 14px 18px; border-top: 1px solid var(--line);">
+        <div style="display: flex; align-items: center; gap: 8px; padding: 9px 13px; 
+          border-radius: 9px; background: var(--line-soft); margin-bottom: 8px;">
+          <div id="finalStatusDot" style="width: 6px; height: 6px; border-radius: 50%; background: var(--ok);"></div>
+          <span id="finalStatus" style="font-size: 12px; color: var(--ink-soft); letter-spacing: -0.003em;">✓ Task complete</span>
         </div>
         <div style="display: flex; gap: 8px;">
           <button onclick="goHome()" style="
             flex: 1; padding: 10px; border-radius: 10px;
-            border: 1px solid #ececea; background: white;
-            font-size: 13px; font-weight: 500; color: #555;
+            border: 1px solid var(--line); background: var(--surface-raised);
+            font-size: 12.5px; font-weight: 500; color: var(--ink-soft);
             cursor: pointer; font-family: inherit;
-          ">← Home</button>
+            transition: border-color 0.18s ease, color 0.18s ease;
+          " onmouseover="this.style.borderColor='var(--ink-ghost)'; this.style.color='var(--ink)';" onmouseout="this.style.borderColor='var(--line)'; this.style.color='var(--ink-soft)';">← Home</button>
           <button onclick="runAgain()" style="
             flex: 1; padding: 10px; border-radius: 10px;
-            border: none; background: #ff6a3d;
-            font-size: 13px; font-weight: 600; color: white;
+            border: none; background: var(--accent);
+            font-size: 12.5px; font-weight: 600; color: white;
             cursor: pointer; font-family: inherit;
-          ">↻ Run again</button>
+            transition: box-shadow 0.18s ease, transform 0.14s ease;
+          " onmouseover="this.style.boxShadow='0 4px 14px rgba(255,106,61,0.28)';" onmouseout="this.style.boxShadow='none';" onmousedown="this.style.transform='scale(0.98)';" onmouseup="this.style.transform='scale(1)';">↻ Run again</button>
         </div>
       </div>
     </div>
@@ -1132,7 +1220,7 @@
     <div class="watching-right">
       <div class="live-header">
         <div class="live-title">
-          <span style="color: #4caf72;">●</span> LIVE — WATCH ME WORK
+          LIVE — WATCH ME WORK
         </div>
         <div class="live-url" id="liveUrl">Starting...</div>
       </div>
@@ -1515,27 +1603,20 @@
       taskHistory.forEach((task, index) => {
         const item = document.createElement('div');
         item.className = 'task-item';
-        item.style.cssText = `
-          padding: 9px 12px; border-radius: 9px; cursor: pointer;
-          display: flex; align-items: center; gap: 9px;
-          transition: background 0.15s;
-        `;
-        item.onmouseover = () => item.style.background = '#f6f6f4';
-        item.onmouseout = () => item.style.background = 'transparent';
         item.onclick = () => viewPastTask(index);
         
-        const icon = task.status === 'passed' 
-          ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="#4caf72" stroke="#4caf72" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01" fill="none"/></svg>'
-          : '<svg width="14" height="14" viewBox="0 0 24 24" fill="#e57373" stroke="#e57373" stroke-width="2"><circle cx="12" cy="12" r="10" fill="none"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>';
+        const statusIndicator = task.status === 'passed' 
+          ? '<span style="width:7px;height:7px;min-width:7px;border-radius:50%;background:var(--ok);margin-top:5px;flex-shrink:0;"></span>'
+          : '<span style="width:7px;height:7px;min-width:7px;border-radius:50%;background:var(--stop);margin-top:5px;flex-shrink:0;"></span>';
         
         const timeAgo = getTimeAgo(task.time);
         
         item.innerHTML = `
-          ${icon}
+          ${statusIndicator}
           <div style="flex: 1; min-width: 0;">
-            <div style="font-size: 12px; color: #555; white-space: nowrap; 
+            <div style="font-size: 12.5px; color: var(--ink-soft); font-weight: 450; letter-spacing: -0.005em; line-height: 1.4; white-space: nowrap; 
               overflow: hidden; text-overflow: ellipsis;">${task.goal}</div>
-            <div style="font-size: 10px; color: #b0b0ac; margin-top: 2px;">
+            <div style="font-size: 10.5px; color: var(--ink-ghost); margin-top: 3px; letter-spacing: 0.005em;">
               ${timeAgo}${task.steps ? ' · ' + task.steps.length + ' steps' : ''}
             </div>
           </div>
