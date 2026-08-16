@@ -1,16 +1,3 @@
 {
-  "version": 2,
-  "buildCommand": "echo 'no build needed'",
-  "outputDirectory": "public",
-  "functions": {
-    "api/plan.js": { "memory": 512, "maxDuration": 30 },
-    "api/simulate.js": { "memory": 512, "maxDuration": 30 },
-    "api/verify.js": { "memory": 512, "maxDuration": 30 }
-  },
-  "routes": [
-    { "src": "/api/plan", "dest": "/api/plan.js" },
-    { "src": "/api/simulate", "dest": "/api/simulate.js" },
-    { "src": "/api/verify", "dest": "/api/verify.js" },
-    { "src": "/(.*)", "dest": "/$1" }
-  ]
+  "version": 2
 }
