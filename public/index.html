@@ -1,9 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>OmnyGO â€” AI QA Testing Agent</title>
+  <title>OmnyGO &mdash; AI QA Testing Agent</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     * {
@@ -1202,7 +1202,7 @@
         <div style="display: flex; align-items: center; gap: 8px; padding: 9px 13px; 
           border-radius: 9px; background: var(--line-soft); margin-bottom: 8px;">
           <div id="finalStatusDot" style="width: 6px; height: 6px; border-radius: 50%; background: var(--ok);"></div>
-          <span id="finalStatus" style="font-size: 12px; color: var(--ink-soft); letter-spacing: -0.003em;">âœ“ Task complete</span>
+          <span id="finalStatus" style="font-size: 12px; color: var(--ink-soft); letter-spacing: -0.003em;">&#10003; Task complete</span>
         </div>
         <div style="display: flex; gap: 8px;">
           <button onclick="goHome()" style="
@@ -1211,14 +1211,14 @@
             font-size: 12.5px; font-weight: 500; color: var(--ink-soft);
             cursor: pointer; font-family: inherit;
             transition: border-color 0.18s ease, color 0.18s ease;
-          " onmouseover="this.style.borderColor='var(--ink-ghost)'; this.style.color='var(--ink)';" onmouseout="this.style.borderColor='var(--line)'; this.style.color='var(--ink-soft)';">â† Home</button>
+          " onmouseover="this.style.borderColor='var(--ink-ghost)'; this.style.color='var(--ink)';" onmouseout="this.style.borderColor='var(--line)'; this.style.color='var(--ink-soft)';">&larr; Home</button>
           <button onclick="runAgain()" style="
             flex: 1; padding: 10px; border-radius: 10px;
             border: none; background: var(--accent);
             font-size: 12.5px; font-weight: 600; color: white;
             cursor: pointer; font-family: inherit;
             transition: box-shadow 0.18s ease, transform 0.14s ease;
-          " onmouseover="this.style.boxShadow='0 4px 14px rgba(255,106,61,0.28)';" onmouseout="this.style.boxShadow='none';" onmousedown="this.style.transform='scale(0.98)';" onmouseup="this.style.transform='scale(1)';">â†» Run again</button>
+          " onmouseover="this.style.boxShadow='0 4px 14px rgba(255,106,61,0.28)';" onmouseout="this.style.boxShadow='none';" onmousedown="this.style.transform='scale(0.98)';" onmouseup="this.style.transform='scale(1)';">&#8635; Run again</button>
         </div>
       </div>
     </div>
@@ -1226,7 +1226,7 @@
     <div class="watching-right">
       <div class="live-header">
         <div class="live-title">
-          LIVE â€” WATCH ME WORK
+          LIVE &mdash; WATCH ME WORK
         </div>
         <div class="live-url" id="liveUrl">Starting...</div>
       </div>
@@ -1632,7 +1632,7 @@
             <div style="font-size: 12.5px; color: var(--ink-soft); font-weight: 450; letter-spacing: -0.005em; line-height: 1.4; white-space: nowrap; 
               overflow: hidden; text-overflow: ellipsis;">${task.goal}</div>
             <div style="font-size: 10.5px; color: var(--ink-ghost); margin-top: 3px; letter-spacing: 0.005em;">
-              ${timeAgo}${task.steps ? ' Â· ' + task.steps.length + ' steps' : ''}
+              ${timeAgo}${task.steps ? ' &middot; ' + task.steps.length + ' steps' : ''}
             </div>
           </div>
         `;
@@ -1911,20 +1911,20 @@
        if (prevActive) {
          prevActive.classList.remove('active');
          prevActive.classList.add('completed');
-         prevActive.textContent = 'âœ“';
+         prevActive.textContent = '&#10003;';
        }
 
        const stepMap = {
          navigate: { title: action.description || 'Opened the website', sub: `went to ${action.url}`, icon: 'ðŸŒ' },
          click: { title: action.description || 'Clicked on the page', sub: '', icon: 'ðŸ‘†' },
          type: { title: action.description || `Typing "${action.text}"`, sub: `entering "${action.text}"`, icon: 'âŒ¨ï¸' },
-         scroll: { title: action.description || 'Scrolled the page', sub: action.direction, icon: 'â†•ï¸' },
+         scroll: { title: action.description || 'Scrolled the page', sub: action.direction, icon: '&larr;•ï¸' },
          wait: { title: action.description || 'Waiting a moment', sub: 'letting the page load', icon: 'â±ï¸' },
-         ask: { title: 'Need your input', sub: action.question, icon: 'â“' },
-         done: { title: 'All done!', sub: action.result, icon: 'âœ“' }
+         ask: { title: 'Need your input', sub: action.question, icon: 'â' },
+         done: { title: 'All done!', sub: action.result, icon: '&#10003;' }
        };
 
-       const step = stepMap[action.action] || { title: action.description || action.action, sub: '', icon: 'â€¢' };
+       const step = stepMap[action.action] || { title: action.description || action.action, sub: '', icon: '&mdash;¢' };
 
        const item = document.createElement('div');
        item.className = 'step-item';
@@ -1997,13 +1997,13 @@
        if (prevActive) {
          prevActive.classList.remove('active');
          prevActive.classList.add('completed');
-         prevActive.textContent = 'âœ“';
+         prevActive.textContent = '&#10003;';
        }
 
        const item = document.createElement('div');
        item.className = 'step-item';
        item.innerHTML = `
-         <div class="step-circle active">âœ—</div>
+         <div class="step-circle active">&#10003;—</div>
          <div class="step-content">
            <div class="step-title">Something went wrong</div>
            <div class="step-subtitle">${errorMessage}</div>
@@ -2021,7 +2021,7 @@
        if (prevActive) {
          prevActive.classList.remove('active');
          prevActive.classList.add('completed');
-         prevActive.textContent = 'âœ“';
+         prevActive.textContent = '&#10003;';
        }
 
        const item = document.createElement('div');
@@ -2094,8 +2094,8 @@
        const bgTint = verified ? '#f0fdf4' : '#fffbeb';
        const borderColor = verified ? '#86efac' : '#fbbf24';
        const label = verified 
-         ? `Verified â€” task confirmed complete` 
-         : `Partially verified â€” needs another look`;
+         ? `Verified &mdash; task confirmed complete` 
+         : `Partially verified &mdash; needs another look`;
        
        const div = document.createElement('div');
        div.style.cssText = 'display:flex;gap:12px;margin-bottom:16px;';
@@ -2155,11 +2155,11 @@
 
       if (status === 'complete') {
         finalStatusDot.style.background = '#4caf72';
-        finalStatus.textContent = 'âœ“ Task complete';
+        finalStatus.textContent = '&#10003; Task complete';
         currentRunResult = message || '';
       } else if (status === 'error') {
         finalStatusDot.style.background = '#e57373';
-        finalStatus.textContent = 'âœ— ' + message;
+        finalStatus.textContent = '&#10003;— ' + message;
         currentRunResult = message || 'Task failed';
       } else if (status === 'stopped') {
         finalStatusDot.style.background = '#b0b0ac';
@@ -2219,11 +2219,6 @@
     }
 
     // ===== TASK CONTROL =====
-    function useExample(text) {
-      document.getElementById('goalInput').value = text;
-      goHome();
-    }
-
     function goHome() {
       // Clear goal input
       const input = document.getElementById('goalInput');
@@ -2297,14 +2292,14 @@ if (watchingTaskGoal) watchingTaskGoal.textContent = '';
       else if (state === 'done') {
         if (runningBar) runningBar.style.display = 'none';
         if (completedBar) completedBar.style.display = 'block';
-        if (finalStatus) finalStatus.textContent = 'âœ“ Task complete';
+        if (finalStatus) finalStatus.textContent = '&#10003; Task complete';
         if (finalStatusDot) finalStatusDot.style.background = '#4caf72';
         if (statusDot) statusDot.style.animation = 'none';
       }
       else if (state === 'error') {
         if (runningBar) runningBar.style.display = 'none';
         if (completedBar) completedBar.style.display = 'block';
-        if (finalStatus) finalStatus.textContent = 'âœ— ' + (message || 'Something went wrong');
+        if (finalStatus) finalStatus.textContent = '&#10003;— ' + (message || 'Something went wrong');
         if (finalStatusDot) finalStatusDot.style.background = '#e57373';
         if (statusDot) statusDot.style.animation = 'none';
       }
@@ -2513,7 +2508,7 @@ if (watchingTaskGoal) watchingTaskGoal.textContent = '';
       if (liveImg) { liveImg.style.display = 'none'; liveImg.src = ''; }
       if (livePlaceholder) {
         livePlaceholder.style.display = 'block';
-        livePlaceholder.textContent = 'No live view â€” this is a past task';
+        livePlaceholder.textContent = 'No live view &mdash; this is a past task';
       }
       if (liveUrl) liveUrl.textContent = '';
       if (fakeBrowserUrl) fakeBrowserUrl.textContent = 'about:blank';
@@ -2528,10 +2523,10 @@ if (watchingTaskGoal) watchingTaskGoal.textContent = '';
       if (completedBar) completedBar.style.display = 'block';
       
       if (task.status === 'passed') {
-        if (finalStatus) finalStatus.textContent = 'âœ“ Task completed';
+        if (finalStatus) finalStatus.textContent = '&#10003; Task completed';
         if (finalStatusDot) finalStatusDot.style.background = '#4caf72';
       } else {
-        if (finalStatus) finalStatus.textContent = 'âœ— Task failed';
+        if (finalStatus) finalStatus.textContent = '&#10003;— Task failed';
         if (finalStatusDot) finalStatusDot.style.background = '#e57373';
       }
       
