@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>OmnyGO — AI QA Testing Agent</title>
+  <title>OmnyGO â€” AI QA Testing Agent</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     * {
@@ -351,9 +351,9 @@
     }
 
     .greeting {
-      font-size: 38px;
+      font-size: 34px;
       font-weight: 600;
-      letter-spacing: -0.028em;
+      letter-spacing: -0.03em;
       color: var(--ink);
       margin-bottom: 14px;
       line-height: 1.1;
@@ -365,8 +365,8 @@
       color: var(--ink-faint);
       letter-spacing: -0.005em;
       line-height: 1.55;
-      max-width: 480px;
-      margin: 14px auto 0;
+      max-width: 520px;
+      margin: 14px auto 34px;
     }
 
     .task-input-container {
@@ -554,7 +554,8 @@
 
     .task-goal {
       font-size: 13px;
-      color: #1a1a1a;
+      font-weight: 450;
+      color: var(--ink);
       line-height: 1.4;
       word-break: break-word;
     }
@@ -632,6 +633,7 @@
        padding: 7px 0;
        font-size: 12.5px;
        color: var(--ink-soft);
+        font-weight: 500;
        line-height: 1.45;
        letter-spacing: -0.005em;
      }
@@ -1065,14 +1067,18 @@
   <!-- HOME VIEW -->
   <div id="homeView">
     <div class="home-sidebar">
-      <div class="home-sidebar-wordmark wordmark" onclick="goHome()">
-        Omny<span class="wordmark-go">GO</span>
+      <div style="padding: 22px 18px 0; margin-bottom: 28px;">
+        <div class="home-sidebar-wordmark wordmark" onclick="goHome()">
+          Omny<span class="wordmark-go">GO</span>
+        </div>
+        <div style="font-size: 10.5px; color: var(--ink-ghost); letter-spacing: 0.01em; line-height: 1.45; margin-top: 8px; margin-bottom: 0; text-align: left; max-width: 165px;">AI-Powered Autonomous QA Testing Agent</div>
       </div>
-      <div style="font-size: 10.5px; color: var(--ink-ghost); letter-spacing: 0.01em; line-height: 1.45; margin-top: 7px; text-align: left; max-width: 160px;">AI-Powered Autonomous QA Testing Agent</div>
-      <button class="new-task-btn" onclick="newTask()">
-        <span>+</span> New task
-      </button>
-      <div class="recent-label">Recent Tasks</div>
+      <div style="padding: 0 18px; margin-top: 0;">
+        <button class="new-task-btn" onclick="newTask()">
+          <span>+</span> New task
+        </button>
+      </div>
+      <div class="recent-label" style="margin-top: 34px;">Recent Tasks</div>
       <div class="task-list" id="taskList"></div>
       <div onclick="toggleSettings()" style="
   margin-top: auto;
@@ -1094,7 +1100,7 @@
     </div>
     <div class="home-main">
       <div class="greeting" id="greeting">Good evening</div>
-      <div class="subtext">Describe what you want to test, and I'll plan it, execute it, and verify the results — automatically.</div>
+      <div class="subtext" style="text-wrap: balance; max-width: 520px;">Describe a test in plain English. I'll plan it, run it in a real browser, and verify the result.</div>
       <div class="task-input-container">
         <input
           type="text"
@@ -1113,18 +1119,18 @@
       </div>
       <div class="examples-label">Try these:</div>
       <div class="examples-container">
-        <div class="example-chip" onclick="fillExample('Test login on demo.opencart.com with valid credentials')">
-          Test login
-        </div>
-        <div class="example-chip" onclick="fillExample('Verify search returns results on wikipedia.org')">
-          Verify search
-        </div>
-        <div class="example-chip" onclick="fillExample('Check that checkout flow works on demo shopping site')">
-          Test checkout
-        </div>
-        <div class="example-chip" onclick="fillExample('Verify all links in navigation menu are working')">
-          Check links
-        </div>
+        <button type="button" class="example-chip" onclick="useExample('Test login flow on demo.opencart.com with valid credentials')">
+           Test login
+         </button>
+        <button type="button" class="example-chip" onclick="useExample('Verify search returns results on wikipedia.org')">
+           Verify search
+         </button>
+        <button type="button" class="example-chip" onclick="useExample('Check that the checkout flow works on a demo shopping site')">
+           Test checkout
+         </button>
+        <button type="button" class="example-chip" onclick="useExample('Verify all links in the navigation menu are working')">
+           Check links
+         </button>
       </div>
     </div>
   </div>
@@ -1196,7 +1202,7 @@
         <div style="display: flex; align-items: center; gap: 8px; padding: 9px 13px; 
           border-radius: 9px; background: var(--line-soft); margin-bottom: 8px;">
           <div id="finalStatusDot" style="width: 6px; height: 6px; border-radius: 50%; background: var(--ok);"></div>
-          <span id="finalStatus" style="font-size: 12px; color: var(--ink-soft); letter-spacing: -0.003em;">✓ Task complete</span>
+          <span id="finalStatus" style="font-size: 12px; color: var(--ink-soft); letter-spacing: -0.003em;">âœ“ Task complete</span>
         </div>
         <div style="display: flex; gap: 8px;">
           <button onclick="goHome()" style="
@@ -1205,14 +1211,14 @@
             font-size: 12.5px; font-weight: 500; color: var(--ink-soft);
             cursor: pointer; font-family: inherit;
             transition: border-color 0.18s ease, color 0.18s ease;
-          " onmouseover="this.style.borderColor='var(--ink-ghost)'; this.style.color='var(--ink)';" onmouseout="this.style.borderColor='var(--line)'; this.style.color='var(--ink-soft)';">← Home</button>
+          " onmouseover="this.style.borderColor='var(--ink-ghost)'; this.style.color='var(--ink)';" onmouseout="this.style.borderColor='var(--line)'; this.style.color='var(--ink-soft)';">â† Home</button>
           <button onclick="runAgain()" style="
             flex: 1; padding: 10px; border-radius: 10px;
             border: none; background: var(--accent);
             font-size: 12.5px; font-weight: 600; color: white;
             cursor: pointer; font-family: inherit;
             transition: box-shadow 0.18s ease, transform 0.14s ease;
-          " onmouseover="this.style.boxShadow='0 4px 14px rgba(255,106,61,0.28)';" onmouseout="this.style.boxShadow='none';" onmousedown="this.style.transform='scale(0.98)';" onmouseup="this.style.transform='scale(1)';">↻ Run again</button>
+          " onmouseover="this.style.boxShadow='0 4px 14px rgba(255,106,61,0.28)';" onmouseout="this.style.boxShadow='none';" onmousedown="this.style.transform='scale(0.98)';" onmouseup="this.style.transform='scale(1)';">â†» Run again</button>
         </div>
       </div>
     </div>
@@ -1220,7 +1226,7 @@
     <div class="watching-right">
       <div class="live-header">
         <div class="live-title">
-          LIVE — WATCH ME WORK
+          LIVE â€” WATCH ME WORK
         </div>
         <div class="live-url" id="liveUrl">Starting...</div>
       </div>
@@ -1295,11 +1301,11 @@
             <div class="activity-dot" style="width:24px;height:24px;border-radius:50%;background:#ff6a3d;display:flex;align-items:center;justify-content:center;flex-shrink:0;animation:pulse 1.5s ease-in-out infinite;">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><circle cx="11" cy="11" r="7"/></svg>
             </div>
-            <div style="width:1.5px;flex:1;background:#e8e8e6;margin:4px 0;min-height:14px;"></div>
+            <div style="width:1px;flex:1;background:var(--line);margin:5px 0;min-height:14px;"></div>
           </div>
           <div style="padding-top:2px;">
-            <div style="font-size:13px;color:#1a1a1a;font-weight:500;">${description}</div>
-            <div style="font-size:11px;color:#aaa;margin-top:1px;">${planStep}</div>
+            <div style="font-size:12.5px;color:var(--ink);font-weight:550;letter-spacing:-0.008em;line-height:1.4;">${description}</div>
+            <div style="font-size:10.5px;color:var(--ink-ghost);margin-top:3px;line-height:1.45;">${planStep}</div>
           </div>
         </div>
       `;
@@ -1461,6 +1467,15 @@
       }
     }
 
+    function useExample(text) {
+      const input = document.getElementById('goalInput');
+      if (input) {
+        input.value = text;
+        input.focus();
+      }
+      handleGoClick();
+    }
+
     function handleGoClick() {
       const input = document.getElementById('goalInput');
       if (!input) return;
@@ -1617,7 +1632,7 @@
             <div style="font-size: 12.5px; color: var(--ink-soft); font-weight: 450; letter-spacing: -0.005em; line-height: 1.4; white-space: nowrap; 
               overflow: hidden; text-overflow: ellipsis;">${task.goal}</div>
             <div style="font-size: 10.5px; color: var(--ink-ghost); margin-top: 3px; letter-spacing: 0.005em;">
-              ${timeAgo}${task.steps ? ' · ' + task.steps.length + ' steps' : ''}
+              ${timeAgo}${task.steps ? ' Â· ' + task.steps.length + ' steps' : ''}
             </div>
           </div>
         `;
@@ -1896,20 +1911,20 @@
        if (prevActive) {
          prevActive.classList.remove('active');
          prevActive.classList.add('completed');
-         prevActive.textContent = '✓';
+         prevActive.textContent = 'âœ“';
        }
 
        const stepMap = {
-         navigate: { title: action.description || 'Opened the website', sub: `went to ${action.url}`, icon: '🌐' },
-         click: { title: action.description || 'Clicked on the page', sub: '', icon: '👆' },
-         type: { title: action.description || `Typing "${action.text}"`, sub: `entering "${action.text}"`, icon: '⌨️' },
-         scroll: { title: action.description || 'Scrolled the page', sub: action.direction, icon: '↕️' },
-         wait: { title: action.description || 'Waiting a moment', sub: 'letting the page load', icon: '⏱️' },
-         ask: { title: 'Need your input', sub: action.question, icon: '❓' },
-         done: { title: 'All done!', sub: action.result, icon: '✓' }
+         navigate: { title: action.description || 'Opened the website', sub: `went to ${action.url}`, icon: 'ðŸŒ' },
+         click: { title: action.description || 'Clicked on the page', sub: '', icon: 'ðŸ‘†' },
+         type: { title: action.description || `Typing "${action.text}"`, sub: `entering "${action.text}"`, icon: 'âŒ¨ï¸' },
+         scroll: { title: action.description || 'Scrolled the page', sub: action.direction, icon: 'â†•ï¸' },
+         wait: { title: action.description || 'Waiting a moment', sub: 'letting the page load', icon: 'â±ï¸' },
+         ask: { title: 'Need your input', sub: action.question, icon: 'â“' },
+         done: { title: 'All done!', sub: action.result, icon: 'âœ“' }
        };
 
-       const step = stepMap[action.action] || { title: action.description || action.action, sub: '', icon: '•' };
+       const step = stepMap[action.action] || { title: action.description || action.action, sub: '', icon: 'â€¢' };
 
        const item = document.createElement('div');
        item.className = 'step-item';
@@ -1982,13 +1997,13 @@
        if (prevActive) {
          prevActive.classList.remove('active');
          prevActive.classList.add('completed');
-         prevActive.textContent = '✓';
+         prevActive.textContent = 'âœ“';
        }
 
        const item = document.createElement('div');
        item.className = 'step-item';
        item.innerHTML = `
-         <div class="step-circle active">✗</div>
+         <div class="step-circle active">âœ—</div>
          <div class="step-content">
            <div class="step-title">Something went wrong</div>
            <div class="step-subtitle">${errorMessage}</div>
@@ -2006,7 +2021,7 @@
        if (prevActive) {
          prevActive.classList.remove('active');
          prevActive.classList.add('completed');
-         prevActive.textContent = '✓';
+         prevActive.textContent = 'âœ“';
        }
 
        const item = document.createElement('div');
@@ -2021,7 +2036,7 @@
              </div>
            </div>
            <div style="padding-top:2px;">
-             <div style="font-size:13px;color:#1a1a1a;font-weight:500;">Task stopped</div>
+             <div style="font-size:12.5px;color:var(--ink);font-weight:550;letter-spacing:-0.008em;line-height:1.4;"><div style="font-size:13px;color:#1a1a1a;font-weight:500;">Task stopped</div></div>
              <div style="font-size:11px;color:#aaa;margin-top:1px;">You stopped the task</div>
            </div>
          </div>
@@ -2052,10 +2067,10 @@
              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" 
                stroke-width="2.5"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
            </div>
-           <div style="width:1.5px;flex:1;background:#e8e8e6;margin:4px 0;min-height:14px;opacity:0;"></div>
+           <div style="width:1px;flex:1;background:var(--line);margin:5px 0;min-height:14px;opacity:0;"></div>
          </div>
          <div style="padding-top:2px;">
-           <div style="font-size:13px;color:#1a1a1a;font-weight:500;">Checking my work</div>
+           <div style="font-size:12.5px;color:var(--ink);font-weight:550;letter-spacing:-0.008em;line-height:1.4;"><div style="font-size:13px;color:#1a1a1a;font-weight:500;">Checking my work</div></div>
            <div style="font-size:11px;color:#aaa;margin-top:1px;">verifying the task is complete</div>
          </div>
        `;
@@ -2079,8 +2094,8 @@
        const bgTint = verified ? '#f0fdf4' : '#fffbeb';
        const borderColor = verified ? '#86efac' : '#fbbf24';
        const label = verified 
-         ? `Verified — task confirmed complete` 
-         : `Partially verified — needs another look`;
+         ? `Verified â€” task confirmed complete` 
+         : `Partially verified â€” needs another look`;
        
        const div = document.createElement('div');
        div.style.cssText = 'display:flex;gap:12px;margin-bottom:16px;';
@@ -2093,10 +2108,8 @@
            </div>
          </div>
          <div style="padding-top:2px;flex:1;">
-           <div style="font-size:13px;color:#1a1a1a;font-weight:600;">${label}</div>
-           <div style="font-size:11px;color:#888;margin-top:3px;line-height:1.5;
-             padding:8px 10px;background:${bgTint};border:1px solid ${borderColor};
-             border-radius:8px;">
+           <div style="font-size:13px;color:var(--ink);font-weight:550;letter-spacing:-0.008em;line-height:1.4;">${label}</div>
+           <div style="font-size:11px;color:var(--ink-soft);margin-top:3px;line-height:1.5;padding:8px 10px;background:${bgTint};border:1px solid ${borderColor};border-radius:8px;">
              ${reason}
              <div style="margin-top:4px;font-size:10px;color:#aaa;">
                Confidence: ${confidence}
@@ -2142,15 +2155,15 @@
 
       if (status === 'complete') {
         finalStatusDot.style.background = '#4caf72';
-        finalStatus.textContent = '✓ Task complete';
+        finalStatus.textContent = 'âœ“ Task complete';
         currentRunResult = message || '';
       } else if (status === 'error') {
         finalStatusDot.style.background = '#e57373';
-        finalStatus.textContent = '✗ ' + message;
+        finalStatus.textContent = 'âœ— ' + message;
         currentRunResult = message || 'Task failed';
       } else if (status === 'stopped') {
         finalStatusDot.style.background = '#b0b0ac';
-        finalStatus.textContent = '■ Stopped';
+        finalStatus.textContent = 'â–  Stopped';
         currentRunResult = 'Task stopped';
       }
 
@@ -2165,14 +2178,48 @@
     }
 
     function runAgain() {
-      const taskText = document.getElementById('watchingTaskGoal');
-      if (taskText && taskText.textContent) {
-        startTask(taskText.textContent.trim());
+      const taskText = document.getElementById('currentTaskText') || 
+                       document.getElementById('watchingTaskGoal');
+      const goal = (taskText && taskText.textContent.trim()) || activeGoal;
+      if (!goal) return;
+      
+      // Reset state for a fresh run
+      taskStopped = false;
+      errorShown = false;
+      activeSteps = [];
+      activePlan = [];
+      activeGoal = goal;
+      stepCount = 0;
+      
+      // Clear steps and plan
+      const stepsContainer = document.getElementById('stepsContainer');
+      if (stepsContainer) stepsContainer.innerHTML = '';
+      const planSteps = document.getElementById('planSteps');
+      if (planSteps) planSteps.innerHTML = '';
+      const planContainer = document.getElementById('planContainer');
+      if (planContainer) planContainer.style.display = 'block';
+      
+      // Reset live view container to placeholder
+      const container = document.querySelector('.screenshot-container');
+      if (container) {
+        container.innerHTML = `
+          <img id="liveScreenshot" style="display: none;" src="">
+          <div class="screenshot-placeholder" style="display: block;">Starting up...</div>
+        `;
       }
+      
+      // Show running bar
+      const runningBar = document.getElementById('runningBar');
+      const completedBar = document.getElementById('completedBar');
+      if (runningBar) runningBar.style.display = 'block';
+      if (completedBar) completedBar.style.display = 'none';
+      
+      // Run via the real browser path
+      runTaskViaRealBrowser(goal);
     }
 
     // ===== TASK CONTROL =====
-    function fillExample(text) {
+    function useExample(text) {
       document.getElementById('goalInput').value = text;
       goHome();
     }
@@ -2250,21 +2297,21 @@ if (watchingTaskGoal) watchingTaskGoal.textContent = '';
       else if (state === 'done') {
         if (runningBar) runningBar.style.display = 'none';
         if (completedBar) completedBar.style.display = 'block';
-        if (finalStatus) finalStatus.textContent = '✓ Task complete';
+        if (finalStatus) finalStatus.textContent = 'âœ“ Task complete';
         if (finalStatusDot) finalStatusDot.style.background = '#4caf72';
         if (statusDot) statusDot.style.animation = 'none';
       }
       else if (state === 'error') {
         if (runningBar) runningBar.style.display = 'none';
         if (completedBar) completedBar.style.display = 'block';
-        if (finalStatus) finalStatus.textContent = '✗ ' + (message || 'Something went wrong');
+        if (finalStatus) finalStatus.textContent = 'âœ— ' + (message || 'Something went wrong');
         if (finalStatusDot) finalStatusDot.style.background = '#e57373';
         if (statusDot) statusDot.style.animation = 'none';
       }
        else if (state === 'stopped') {
          if (runningBar) runningBar.style.display = 'none';
         if (completedBar) completedBar.style.display = 'block';
-        if (finalStatus) finalStatus.textContent = '■ Stopped';
+        if (finalStatus) finalStatus.textContent = 'â–  Stopped';
         if (finalStatusDot) finalStatusDot.style.background = '#b0b0ac';
         if (statusDot) statusDot.style.animation = 'none';
       }
@@ -2339,16 +2386,8 @@ if (watchingTaskGoal) watchingTaskGoal.textContent = '';
       if (homeView) homeView.style.display = 'none';
       if (watchingView) watchingView.style.display = 'flex';
       
-      // 7. Send WebSocket message AFTER a small delay to ensure view is ready
-      setTimeout(() => {
-        if (ws && ws.readyState === WebSocket.OPEN) {
-          ws.send(JSON.stringify({ type: 'run', goal: goalText }));
-          console.log('WebSocket run message sent');
-        } else {
-          console.error('WebSocket not connected, state:', ws ? ws.readyState : 'null');
-          alert('Not connected to server. Please refresh the page.');
-        }
-      }, 100);
+      // 7. Run via the real browser path (WebSocket is no longer used)
+      runTaskViaRealBrowser(goalText);
     }
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -2415,8 +2454,7 @@ if (watchingTaskGoal) watchingTaskGoal.textContent = '';
                   <polyline points="20 6 9 17 4 12"/>
                 </svg>
               </div>
-              <span style="font-size:13px;color:#4caf72;font-weight:500;
-                line-height:1.4;">${stepText}</span>
+              <span style="font-size:12.5px;color:var(--ok);font-weight:500;line-height:1.45;letter-spacing:-0.005em;">${stepText}</span>
             `;
             planSteps.appendChild(div);
           });
@@ -2453,10 +2491,10 @@ if (watchingTaskGoal) watchingTaskGoal.textContent = '';
                     <polyline points="20 6 9 17 4 12"></polyline>
                   </svg>
                 </div>
-                ${!isLast ? '<div style="width:1.5px;flex:1;background:#e8e8e6;margin:4px 0;min-height:14px;"></div>' : ''}
+                ${!isLast ? '<div style="width:1px;flex:1;background:var(--line);margin:5px 0;min-height:14px;"></div>' : ''}
               </div>
               <div style="padding-top:2px;">
-                <div style="font-size:13px;color:#1a1a1a;font-weight:500;">${step.title}</div>
+                <div style="font-size:12.5px;color:var(--ink);font-weight:550;letter-spacing:-0.008em;line-height:1.4;"><div style="font-size:13px;color:#1a1a1a;font-weight:500;">${step.title}</div></div>
                 <div style="font-size:11px;color:#aaa;margin-top:1px;">${step.subtitle || ''}</div>
               </div>
             `;
@@ -2475,7 +2513,7 @@ if (watchingTaskGoal) watchingTaskGoal.textContent = '';
       if (liveImg) { liveImg.style.display = 'none'; liveImg.src = ''; }
       if (livePlaceholder) {
         livePlaceholder.style.display = 'block';
-        livePlaceholder.textContent = 'No live view — this is a past task';
+        livePlaceholder.textContent = 'No live view â€” this is a past task';
       }
       if (liveUrl) liveUrl.textContent = '';
       if (fakeBrowserUrl) fakeBrowserUrl.textContent = 'about:blank';
@@ -2490,10 +2528,10 @@ if (watchingTaskGoal) watchingTaskGoal.textContent = '';
       if (completedBar) completedBar.style.display = 'block';
       
       if (task.status === 'passed') {
-        if (finalStatus) finalStatus.textContent = '✓ Task completed';
+        if (finalStatus) finalStatus.textContent = 'âœ“ Task completed';
         if (finalStatusDot) finalStatusDot.style.background = '#4caf72';
       } else {
-        if (finalStatus) finalStatus.textContent = '✗ Task failed';
+        if (finalStatus) finalStatus.textContent = 'âœ— Task failed';
         if (finalStatusDot) finalStatusDot.style.background = '#e57373';
       }
       
