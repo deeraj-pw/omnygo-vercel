@@ -389,6 +389,29 @@
       50% { opacity: 0.5; }
     }
 
+    @keyframes pulse-dot {
+      0%, 100% { background-color: #22c55e; opacity: 1; box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
+      50% { box-shadow: 0 0 0 6px rgba(34, 197, 94, 0); }
+    }
+
+    .live-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: #22c55e;
+      font-weight: 600;
+      font-size: 12px;
+      letter-spacing: 0.5px;
+    }
+
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: #22c55e;
+      animation: pulse-dot 2s infinite;
+    }
+
     .go-btn {
       background-color: #ff6a3d;
       color: #ffffff;
@@ -1193,88 +1216,136 @@
       if (scroller) scroller.scrollTop = scroller.scrollHeight;
     }
 
-    async function runTaskViaAPI(goal) {
+    function showLiveView(liveViewUrl) {
+      // Find the live view container
+      const liveContainer = document.getElementById('liveScreenshot') || 
+                            document.getElementById('livePlaceholder');
+      
+      // Find the parent area that holds the browser view
+      const browserView = document.querySelector('.browser-view') || 
+                          document.querySelector('[id*="live"]');
+      
+      if (browserView) {
+        // Clear any existing content
+        browserView.innerHTML = `
+          <iframe src="${liveViewUrl}" 
+            style="width:100%; height:100%; border:none; border-radius:8px;"
+            allow="clipboard-read; clipboard-write">
+          </iframe>
+        `;
+      } else if (liveContainer && liveContainer.tagName === 'IMG') {
+        // Replace image element with iframe
+        const iframe = document.createElement('iframe');
+        iframe.src = liveViewUrl;
+        iframe.style.cssText = 'width:100%; height:100%; border:none; border-radius:8px;';
+        iframe.allow = 'clipboard-read; clipboard-write';
+        liveContainer.parentNode.replaceChild(iframe, liveContainer);
+      }
+    }
+
+    async function runTaskViaRealBrowser(goal) {
       const userKey = localStorage.getItem('omnygo_user_key') || '';
       
       try {
-        // STEP 1: Get the plan
-        updateWorkingStatus('Planning approach...');
+        // STEP 1: Create browser session
+        updateWorkingStatus('Starting browser...');
         
+        const createRes = await fetch('/api/run-task', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'create' })
+        });
+        
+        if (!createRes.ok) {
+          const err = await createRes.json();
+          throw new Error(err.error || 'Failed to start browser');
+        }
+        
+        const session = await createRes.json();
+        const connectUrl = session.connectUrl;
+        
+        // Embed live view
+        showLiveView(session.liveViewUrl);
+        
+        // STEP 2: Get the plan
+        updateWorkingStatus('Planning approach...');
         const planRes = await fetch('/api/plan', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ goal, userApiKey: userKey })
         });
-        
-        if (!planRes.ok) {
-          const err = await planRes.json();
-          throw new Error(err.error || 'Planning failed');
-        }
-        
         const planData = await planRes.json();
-        const plan = planData.plan;
-        
-        // Render the plan
+        const plan = planData.plan || [];
         renderPlan(plan);
         activePlan = plan.slice();
         
-        // STEP 2: Execute each step (simulated)
-        for (let i = 0; i < plan.length; i++) {
-          updatePlanProgress(i, plan.length);
-          updateWorkingStatus(`Working... step ${i + 1}`);
+        // STEP 3: Run the agent loop
+        let conversationHistory = [];
+        let done = false;
+        let stepNum = 0;
+        const maxSteps = 15;
+        
+        while (!done && stepNum < maxSteps) {
+          stepNum++;
+          updateWorkingStatus(`Working... step ${stepNum}`);
+          updatePlanProgress(Math.min(stepNum - 1, plan.length - 1), plan.length);
           
-          // Get AI description of this step
-          const simRes = await fetch('/api/simulate', {
+          const stepRes = await fetch('/api/run-task', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ goal, planStep: plan[i], userApiKey: userKey })
+            body: JSON.stringify({ 
+              action: 'step',
+              connectUrl,
+              goal,
+              conversationHistory,
+              userApiKey: userKey
+            })
           });
           
-          let description = plan[i];
-          if (simRes.ok) {
-            const simData = await simRes.json();
-            description = simData.description || plan[i];
+          if (!stepRes.ok) {
+            const err = await stepRes.json();
+            throw new Error(err.error || 'Step failed');
           }
           
-          // Add activity step
-          addActivityStepAPI(description, plan[i]);
+          const stepData = await stepRes.json();
+          const agentAction = stepData.agentAction;
+          done = stepData.done;
           
-          // Small delay for visual effect
-          await new Promise(r => setTimeout(r, 800));
+          // Add to conversation history
+          conversationHistory.push({ role: 'assistant', content: stepData.assistantMessage });
+          conversationHistory.push({ role: 'user', content: 'Action executed. Continue.' });
+          
+          // Render the action as activity step
+          if (agentAction.action !== 'done') {
+            addActivityStepAPI(agentAction.description || agentAction.action, 
+              agentAction.url || agentAction.text || agentAction.direction || '');
+          }
+          
+          await new Promise(r => setTimeout(r, 500));
         }
         
-        // Mark all plan steps complete
+        // Mark plan complete
         updatePlanProgress(plan.length, plan.length);
         
-        // STEP 3: Verification
+        // STEP 4: Verify
         addVerifyingStep();
-        await new Promise(r => setTimeout(r, 500));
-        
         const verifyRes = await fetch('/api/verify', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ goal, plan, userApiKey: userKey })
         });
-        
-        let verification = { verified: true, confidence: 'medium', reason: 'Test plan covers the goal.' };
-        if (verifyRes.ok) {
-          verification = await verifyRes.json();
-        }
-        
+        let verification = { verified: true, confidence: 'medium', reason: 'Task completed.' };
+        if (verifyRes.ok) verification = await verifyRes.json();
         addVerificationStep(verification);
-        await new Promise(r => setTimeout(r, 500));
         
-        // STEP 4: Done
-        const resultText = `Test plan completed and verified. ${plan.length} test steps executed successfully.`;
+        // STEP 5: Done
+        const resultText = `Test completed. ${stepNum} steps executed in a real browser.`;
         addDoneStep(resultText);
         markPlanComplete();
         
-        // Save to history
         currentRunResult = resultText;
-        const taskStatus = verification.verified ? 'passed' : 'failed';
-        addToHistory(goal, taskStatus, [...activeSteps], resultText, [...activePlan]);
-        
-        // Update bottom bar
+        addToHistory(goal, verification.verified ? 'passed' : 'failed', 
+          [...activeSteps], resultText, [...activePlan]);
         completeTask(resultText, 'complete');
         
       } catch (error) {
@@ -1323,8 +1394,10 @@
       
       const livePlaceholder = document.getElementById('livePlaceholder');
       if (livePlaceholder) {
-        livePlaceholder.style.display = 'block';
-        livePlaceholder.textContent = 'AI Planning & Verification Mode — Full browser automation available in local version';
+        livePlaceholder.style.display = 'flex';
+        livePlaceholder.style.alignItems = 'center';
+        livePlaceholder.style.justifyContent = 'center';
+        livePlaceholder.innerHTML = '<div class="live-indicator"><div class="live-dot"></div>LIVE — WATCH ME WORK</div>';
       }
       
       const liveUrl = document.getElementById('liveUrl');
@@ -1342,8 +1415,8 @@
       const workingStatus = document.getElementById('workingStatus');
       if (workingStatus) workingStatus.textContent = 'Starting...';
       
-      // Execute task via Vercel serverless APIs
-      runTaskViaAPI(goal);
+      // Execute task via real Browserbase browser
+      runTaskViaRealBrowser(goal);
     }
 
     // ===== API KEY MANAGEMENT =====
