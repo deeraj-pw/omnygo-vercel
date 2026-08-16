@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -1100,7 +1100,7 @@
     </div>
     <div class="home-main">
       <div class="greeting" id="greeting">Good evening</div>
-      <div class="subtext" style="text-wrap: balance; max-width: 520px;">Describe a test in plain English. I'll plan it, run it in a real browser, and verify the result.</div>
+      <div class="subtext" style="max-width: 440px; text-wrap: balance; line-height: 1.5; margin: 16px auto 0;">Describe a test in plain English. I'll plan it, run it in a real browser, and verify the result.</div>
       <div class="task-input-container">
         <input
           type="text"
@@ -1266,6 +1266,7 @@
     let errorShown = false;
     let activeGoal = '';
     let currentTaskText = '';
+    let currentSessionId = null;
 
     // ===== GLOBAL HANDLER =====
     // ===== API-BASED TASK EXECUTION =====
@@ -1363,6 +1364,7 @@
         
         const session = await createRes.json();
         const connectUrl = session.connectUrl;
+        currentSessionId = session.sessionId || null;
         
         // Embed live view
         showLiveView(session.liveViewUrl);
@@ -1386,6 +1388,26 @@
         const maxSteps = 15;
         
         while (!done && stepNum < maxSteps) {
+          // Check if user stopped the task
+          if (taskStopped) {
+            console.log('Task stopped by user');
+            // End the browser session
+            if (currentSessionId) {
+              try {
+                await fetch('/api/run-task', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ action: 'end', sessionId: currentSessionId })
+                });
+              } catch(e) {
+                console.error('Error ending session:', e);
+              }
+            }
+            addStoppedStep();
+            completeTask('Task stopped by user', 'stopped');
+            return;
+          }
+          
           stepNum++;
           updateWorkingStatus(`Working... step ${stepNum}`);
           updatePlanProgress(Math.min(stepNum - 1, plan.length - 1), plan.length);
@@ -1408,6 +1430,22 @@
           }
           
           const stepData = await stepRes.json();
+          
+          // Check again if user stopped after the async fetch
+          if (taskStopped) {
+            console.log('Task stopped by user (after fetch)');
+            if (currentSessionId) {
+              try {
+                await fetch('/api/run-task', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ action: 'end', sessionId: currentSessionId })
+                });
+              } catch(e) {}
+            }
+            return;
+          }
+          
           const agentAction = stepData.agentAction;
           done = stepData.done;
           
@@ -1911,7 +1949,7 @@
        if (prevActive) {
          prevActive.classList.remove('active');
          prevActive.classList.add('completed');
-         prevActive.textContent = '&#10003;';
+         prevActive.textContent = '\u2713';
        }
 
        const stepMap = {
@@ -1997,7 +2035,7 @@
        if (prevActive) {
          prevActive.classList.remove('active');
          prevActive.classList.add('completed');
-         prevActive.textContent = '&#10003;';
+         prevActive.textContent = '\u2713';
        }
 
        const item = document.createElement('div');
@@ -2021,7 +2059,7 @@
        if (prevActive) {
          prevActive.classList.remove('active');
          prevActive.classList.add('completed');
-         prevActive.textContent = '&#10003;';
+         prevActive.textContent = '\u2713';
        }
 
        const item = document.createElement('div');
@@ -2155,11 +2193,11 @@
 
       if (status === 'complete') {
         finalStatusDot.style.background = '#4caf72';
-        finalStatus.textContent = '&#10003; Task complete';
+        finalStatus.textContent = '\u2713 Task complete';
         currentRunResult = message || '';
       } else if (status === 'error') {
         finalStatusDot.style.background = '#e57373';
-        finalStatus.textContent = '&#10003;— ' + message;
+        finalStatus.textContent = '\u2713 ' + message;
         currentRunResult = message || 'Task failed';
       } else if (status === 'stopped') {
         finalStatusDot.style.background = '#b0b0ac';
@@ -2292,14 +2330,14 @@ if (watchingTaskGoal) watchingTaskGoal.textContent = '';
       else if (state === 'done') {
         if (runningBar) runningBar.style.display = 'none';
         if (completedBar) completedBar.style.display = 'block';
-        if (finalStatus) finalStatus.textContent = '&#10003; Task complete';
+        if (finalStatus) finalStatus.textContent = '\u2713 Task complete';
         if (finalStatusDot) finalStatusDot.style.background = '#4caf72';
         if (statusDot) statusDot.style.animation = 'none';
       }
       else if (state === 'error') {
         if (runningBar) runningBar.style.display = 'none';
         if (completedBar) completedBar.style.display = 'block';
-        if (finalStatus) finalStatus.textContent = '&#10003;— ' + (message || 'Something went wrong');
+        if (finalStatus) finalStatus.textContent = '\u2713 ' + (message || 'Something went wrong');
         if (finalStatusDot) finalStatusDot.style.background = '#e57373';
         if (statusDot) statusDot.style.animation = 'none';
       }
@@ -2402,10 +2440,17 @@ if (watchingTaskGoal) watchingTaskGoal.textContent = '';
 
     function stopTask() {
       taskStopped = true;
-      // Immediately show stopped UI, don't wait for server response
-      if (ws && ws.readyState === WebSocket.OPEN) {
-        ws.send(JSON.stringify({ type: 'stop' }));
+      // End the session immediately
+      if (currentSessionId) {
+        fetch('/api/run-task', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'end', sessionId: currentSessionId })
+        }).catch(() => {});
       }
+      // Update UI to stopped state
+      addStoppedStep();
+      completeTask('Task stopped by user', 'stopped');
     }
 
     function sendReply() {
@@ -2508,7 +2553,7 @@ if (watchingTaskGoal) watchingTaskGoal.textContent = '';
       if (liveImg) { liveImg.style.display = 'none'; liveImg.src = ''; }
       if (livePlaceholder) {
         livePlaceholder.style.display = 'block';
-        livePlaceholder.textContent = 'No live view &mdash; this is a past task';
+        livePlaceholder.textContent = 'No live view \u2014 this is a past task';
       }
       if (liveUrl) liveUrl.textContent = '';
       if (fakeBrowserUrl) fakeBrowserUrl.textContent = 'about:blank';
@@ -2523,10 +2568,10 @@ if (watchingTaskGoal) watchingTaskGoal.textContent = '';
       if (completedBar) completedBar.style.display = 'block';
       
       if (task.status === 'passed') {
-        if (finalStatus) finalStatus.textContent = '&#10003; Task completed';
+        if (finalStatus) finalStatus.textContent = '\u2713 Task completed';
         if (finalStatusDot) finalStatusDot.style.background = '#4caf72';
       } else {
-        if (finalStatus) finalStatus.textContent = '&#10003;— Task failed';
+        if (finalStatus) finalStatus.textContent = '\u2713 Task failed';
         if (finalStatusDot) finalStatusDot.style.background = '#e57373';
       }
       

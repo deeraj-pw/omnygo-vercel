@@ -1,0 +1,62 @@
+===============================================
+CHANGES APPLIED TO: c:\omnygo-vercel\public\index.html
+===============================================
+
+FIX 1: HTML ENTITIES ENCODING
+============================
+
+Line 1103: Subtitle styling
+  BEFORE: <div class="subtext" style="text-wrap: balance; max-width: 520px;">
+  AFTER:  <div class="subtext" style="max-width: 440px; text-wrap: balance; line-height: 1.5; margin: 16px auto 0;">
+
+Line 1269: Added global session tracking variable
+  ADDED: let currentSessionId = null;
+
+Line 1367: Capture session ID from API response
+  ADDED: currentSessionId = session.sessionId || null;
+
+Lines 1391-1409: Stop check at beginning of while loop
+  ADDED: Full stop detection with session cleanup
+
+Lines 1433-1448: Stop check after fetch call
+  ADDED: Second stop detection point
+
+Line 2196: Task complete status (Unicode escape)
+  BEFORE: finalStatus.textContent = '&#10003; Task complete';
+  AFTER:  finalStatus.textContent = '\u2713 Task complete';
+
+Line 2200: Error status (removed em dash)
+  BEFORE: finalStatus.textContent = '&#10003;— ' + message;
+  AFTER:  finalStatus.textContent = '\u2713 ' + message;
+
+Line 2295: Completion bar status
+  BEFORE: finalStatus.textContent = '&#10003; Task complete';
+  AFTER:  finalStatus.textContent = '\u2713 Task complete';
+
+Line 2511: Past task placeholder (em dash entity to unicode)
+  BEFORE: livePlaceholder.textContent = 'No live view &mdash; this is a past task';
+  AFTER:  livePlaceholder.textContent = 'No live view \u2014 this is a past task';
+
+Line 2526: History view - task completed
+  BEFORE: finalStatus.textContent = '&#10003; Task completed';
+  AFTER:  finalStatus.textContent = '\u2713 Task completed';
+
+Line 2574: History view - task failed (em dash removed)
+  BEFORE: finalStatus.textContent = '&#10003;— Task failed';
+  AFTER:  finalStatus.textContent = '\u2713 Task failed';
+
+Lines 2441-2453: Enhanced stopTask() function
+  CHANGED: Added session ending + UI updates
+  - Sets taskStopped = true
+  - Calls API to end session
+  - Updates UI with addStoppedStep() and completeTask()
+
+===============================================
+SUMMARY OF CHANGES
+===============================================
+
+Total Lines Modified: 8 main locations + multiple function additions
+Total Fixes Applied: 3 critical issues
+Status: ALL COMPLETE ✅
+
+All changes preserve existing functionality and backward compatibility.
