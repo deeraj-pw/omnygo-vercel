@@ -1180,6 +1180,13 @@
       if (el) el.textContent = text;
     }
 
+    function promptUserForInput(question) {
+      return new Promise((resolve) => {
+        const answer = prompt(question || 'The agent needs your input:');
+        resolve(answer || 'No answer provided');
+      });
+    }
+
     function addActivityStepAPI(description, planStep) {
       stepCount++;
       const container = document.getElementById('stepsContainer');
@@ -1309,6 +1316,18 @@
           const stepData = await stepRes.json();
           const agentAction = stepData.agentAction;
           done = stepData.done;
+          
+          // Handle ask action - pause and ask user for input
+          if (stepData.needsInput) {
+            addActivityStepAPI('Need your input', stepData.question);
+            const userAnswer = await promptUserForInput(stepData.question);
+            // Add the answer to conversation history
+            conversationHistory.push({ 
+              role: 'user', 
+              content: 'User provided: ' + userAnswer 
+            });
+            continue; // loop again with the answer in context
+          }
           
           // Add to conversation history
           conversationHistory.push({ role: 'assistant', content: stepData.assistantMessage });

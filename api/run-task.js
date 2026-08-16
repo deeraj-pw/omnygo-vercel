@@ -71,7 +71,13 @@ Respond with ONLY a JSON object:
 { "action": "click", "x": 100, "y": 200, "description": "..." }
 { "action": "type", "text": "...", "description": "..." }
 { "action": "scroll", "direction": "down", "description": "..." }
+{ "action": "ask", "question": "What credentials should I use?" }
 { "action": "done", "result": "..." }
+
+IMPORTANT RULES:
+- If you encounter a login page, password field, or need information only the user has, use the "ask" action instead of guessing.
+- NEVER enter passwords or personal credentials on your own.
+
 Current goal: ${goal}`;
 
       const messages = [...(conversationHistory || []), {
@@ -93,6 +99,19 @@ Current goal: ${goal}`;
       const jsonMatch = actionText.match(/\{[\s\S]*\}/);
       if (jsonMatch) actionText = jsonMatch[0];
       const agentAction = JSON.parse(actionText);
+
+      // Handle ask action - pause and ask user
+      if (agentAction.action === 'ask') {
+        // Return ask to frontend, do not execute browser action
+        res.status(200).json({ 
+          agentAction, 
+          done: false,
+          needsInput: true,
+          question: agentAction.question,
+          assistantMessage: response.content[0].text
+        });
+        return;
+      }
 
       // Execute the action
       let done = false;
